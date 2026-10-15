@@ -7,21 +7,28 @@
  *  Place at: frontend/src/app/admin/products/page.js
  *
  *  Full CRUD against your Express routes:
- *   GET    /api/products        list
+ *   GET    /api/products?search=&page=&limit=   list (paged and searchable; totals come back in X-Total-Count / X-Total-Pages)
  *   POST   /api/products        create
  *   PUT    /api/products/:id    update
  *   DELETE /api/products/:id    delete
  *   POST   /api/upload          image upload
+ *   PATCH  /api/products/bulk         change category / collections / price / stock of the ticked products
+ *   POST   /api/products/bulk-delete  delete the ticked products
  *
- *  No auth gate: /admin/products opens directly. Make sure the matching Express
- *  routes no longer require admin middleware, or writes will return 401/403.
+ *  Admin only. The create / update / delete routes require a signed-in admin
+ *  (protect + adminOnly on the backend, which is the real protection). This page
+ *  also checks the role so non-admins see a message instead of a broken table.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Cormorant_Garamond, Figtree } from 'next/font/google';
+import { useAuth } from '@/context/AuthContext';
+import AdminNav from '@/components/AdminNav';
+import { AdminPager, AdminSearchBox, ADMIN_PAGE_SIZES } from '@/components/AdminListTools';
 import { COLLECTION_SLUGS } from '@/lib/collections';
 import { imageSrc } from '@/lib/imageUrl';
+import './admin-products.css';
 
 const serif = Cormorant_Garamond({
   subsets: ['latin'],
@@ -38,7 +45,21 @@ const sans = Figtree({
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
-const EMPTY_FORM = { name: '', description: '', price: '', image: '', category: 'general', stock: '', collections: [] };
+const EMPTY_BULK = {
+  category: '',
+  addCollections: [],
+  removeCollections: [],
+  priceMode: 'none', // none | set | increase | decrease
+  priceValue: '',
+  stockMode: 'none', // none | set
+  stockValue: '',
+};
+const BULK_CHUNK = 100; // the backend changes at most this many products per request
+
+const chunk = (list, size) => Array.from({ length: Math.ceil(list.length / size) }, (_, i) => list.slice(i * size, i * size + size));
+const plural = (n, word) => `${n.toLocaleString()} ${word}${n === 1 ? '' : 's'}`;
+
+const EMPTY_FORM = { name: '', description: '', price: '', gallery: [], category: 'general', stock: '', collections: [], variants: [] };
 
 const formatPKR = (n) => {
   const value = Number(n);
@@ -50,8 +71,12 @@ const formatPKR = (n) => {
 const mediaSrc = (value) => (/^(blob:|data:)/i.test(value || '') ? value : imageSrc(value));
 
 export default function AdminProductsPage() {
+  const { user, loading: authLoading, isAdmin } = useAuth();
   const [products, setProducts] = useState([]);
   const [status, setStatus] = useState('loading'); // loading | ready | error
+  // What the table is showing. Search and page live together so a new search (back to page 1) is one request.
+  const [query, setQuery] = useState({ search: '', page: 1, limit: ADMIN_PAGE_SIZES[0] });
+  const [info, setInfo] = useState({ total: 0, pages: 1 });
   const [panelOpen, setPanelOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
@@ -61,28 +86,64 @@ export default function AdminProductsPage() {
   const [toast, setToast] = useState('');
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
+  // Ticked products. The ticks stay while you change pages (so you can pick across pages) and are cleared by a new search.
+  const [selected, setSelected] = useState(() => new Set());
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulk, setBulk] = useState(EMPTY_BULK);
+  const [bulkError, setBulkError] = useState('');
+  const [bulkSaving, setBulkSaving] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const latest = useRef(0); // only the newest request may update the screen
 
-  const load = useCallback(() => {
-    setStatus('loading');
-    fetch(`${API_URL}/api/products`, { credentials: 'include' })
-      .then((res) => {
+  const { search, page, limit } = query;
+
+  // silent: refresh without blanking the table (after saving / deleting)
+  const load = useCallback(
+    async ({ silent = false } = {}) => {
+      const mine = ++latest.current;
+      if (!silent) setStatus('loading');
+      try {
+        const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+        if (search) params.set('search', search);
+        const res = await fetch(`${API_URL}/api/products?${params}`, { credentials: 'include' });
         if (!res.ok) throw new Error('failed');
-        return res.json();
-      })
-      .then((data) => {
-        setProducts(Array.isArray(data) ? data : []);
+        const data = await res.json();
+        if (mine !== latest.current) return;
+        const list = Array.isArray(data) ? data : [];
+        const total = Number(res.headers.get('X-Total-Count') ?? list.length);
+        const pages = Number(res.headers.get('X-Total-Pages') ?? 1) || 1;
+        // The last product on the last page was just deleted: step back to a page that exists
+        if (list.length === 0 && page > 1 && pages < page) {
+          setQuery((q) => ({ ...q, page: pages }));
+          return;
+        }
+        setProducts(list);
+        setInfo({ total, pages });
         setStatus('ready');
-      })
-      .catch(() => setStatus('error'));
-  }, []);
+      } catch {
+        if (mine === latest.current) setStatus('error');
+      }
+    },
+    [page, limit, search]
+  );
 
   useEffect(() => {
     load();
   }, [load]);
 
+  const setSearch = useCallback((text) => {
+    setQuery((q) => ({ ...q, search: text, page: 1 }));
+    setSelected(new Set()); // ticks from another search could hide products you no longer see
+  }, []);
+  const setLimit = (n) => setQuery((q) => ({ ...q, limit: n, page: 1 }));
+  const goPage = (p) => {
+    setQuery((q) => ({ ...q, page: p }));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   useEffect(() => {
     if (!toast) return undefined;
-    const t = setTimeout(() => setToast(''), 2600);
+    const t = setTimeout(() => setToast(''), 4000);
     return () => clearTimeout(t);
   }, [toast]);
 
@@ -100,10 +161,15 @@ export default function AdminProductsPage() {
       name: product.name || '',
       description: product.description || '',
       price: product.price ?? '',
-      image: product.image || '',
+      // one ordered list in the form: the first photo is the cover, the rest are the extra gallery photos
+      gallery: [product.image, ...(Array.isArray(product.images) ? product.images : [])].filter(Boolean),
       category: product.category || 'general',
       stock: product.stock ?? '',
       collections: Array.isArray(product.collections) ? product.collections : [],
+      // _id is kept so bags and past orders still point at the same variant after an edit
+      variants: Array.isArray(product.variants)
+        ? product.variants.map((v) => ({ _id: v._id, size: v.size || '', color: v.color || '', stock: v.stock ?? 0 }))
+        : [],
     });
     setFormError('');
     setUploadError('');
@@ -124,36 +190,68 @@ export default function AdminProductsPage() {
     });
   };
 
+  const MAX_PHOTOS = 9; // 1 cover + 8 extra
+
+  // Uploads the chosen files one after another and appends each finished one to the gallery
   const handleFileChange = async (e) => {
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []);
+    e.target.value = ''; // lets you pick the same file again after removing it
+    if (files.length === 0) return;
 
     setUploadError('');
-    const localPreview = URL.createObjectURL(file);
-    setForm((f) => ({ ...f, image: localPreview }));
     setUploading(true);
+    const room = MAX_PHOTOS - form.gallery.length;
+    if (files.length > room) setUploadError(`A product can have at most ${MAX_PHOTOS} photos, so only the first ${Math.max(room, 0)} were added.`);
 
     try {
-      const body = new FormData();
-      body.append('image', file);
-      const res = await fetch(`${API_URL}/api/upload`, { method: 'POST', credentials: 'include', body });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.message || 'Upload failed');
-      setForm((f) => ({ ...f, image: data.url }));
+      for (const file of files.slice(0, Math.max(room, 0))) {
+        const body = new FormData();
+        body.append('image', file);
+        const res = await fetch(`${API_URL}/api/upload`, { method: 'POST', credentials: 'include', body });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(`${file.name}: ${data.message || 'Upload failed'}`);
+        setForm((f) => ({ ...f, gallery: [...f.gallery, data.url] }));
+      }
     } catch (err) {
       setUploadError(err.message || 'Upload failed — try again.');
-      setForm((f) => ({ ...f, image: '' }));
     } finally {
       setUploading(false);
-      URL.revokeObjectURL(localPreview);
-      e.target.value = ''; // lets you pick the same file again after removing it
     }
   };
 
+  const removePhoto = (i) => setForm((f) => ({ ...f, gallery: f.gallery.filter((_, n) => n !== i) }));
+  const makeCover = (i) =>
+    setForm((f) => ({ ...f, gallery: [f.gallery[i], ...f.gallery.filter((_, n) => n !== i)] }));
+  const movePhoto = (i, dir) =>
+    setForm((f) => {
+      const j = i + dir;
+      if (j < 1 || j >= f.gallery.length || i < 1) return f; // the cover stays first
+      const g = [...f.gallery];
+      [g[i], g[j]] = [g[j], g[i]];
+      return { ...f, gallery: g };
+    });
+
+  // ── variants (sizes / colors with their own stock) ───────────────────────────
+  const addVariant = () => setForm((f) => ({ ...f, variants: [...f.variants, { size: '', color: '', stock: 0 }] }));
+  const removeVariant = (i) => setForm((f) => ({ ...f, variants: f.variants.filter((_, n) => n !== i) }));
+  const updateVariant = (i, key) => (e) =>
+    setForm((f) => ({ ...f, variants: f.variants.map((v, n) => (n === i ? { ...v, [key]: e.target.value } : v)) }));
+  const variantTotal = form.variants.reduce((n, v) => n + (Number(v.stock) || 0), 0);
+
   const validate = () => {
     if (!form.name.trim()) return 'Name is required.';
-    if (!form.image.trim()) return 'Please upload a product image.';
+    if (form.gallery.length === 0) return 'Please upload at least one product image.';
+    if (uploading) return 'Wait for the photos to finish uploading.';
     if (form.price === '' || Number(form.price) < 0) return 'Enter a valid price in rupees.';
+    const seen = new Set();
+    for (const v of form.variants) {
+      if (!v.size.trim() && !v.color.trim()) return 'Each variant needs a size or a color (or remove the empty row).';
+      const n = Number(v.stock);
+      if (v.stock === '' || !Number.isInteger(n) || n < 0) return 'Variant stock must be a whole number, 0 or more.';
+      const key = `${v.size.trim().toLowerCase()}|${v.color.trim().toLowerCase()}`;
+      if (seen.has(key)) return `Duplicate variant: ${[v.size.trim(), v.color.trim()].filter(Boolean).join(' / ')}.`;
+      seen.add(key);
+    }
     return '';
   };
 
@@ -171,10 +269,18 @@ export default function AdminProductsPage() {
       name: form.name.trim(),
       description: form.description.trim(),
       price: Number(form.price),
-      image: form.image.trim(),
+      image: form.gallery[0],
+      images: form.gallery.slice(1),
       category: form.category.trim() || 'general',
       stock: form.stock === '' ? 0 : Number(form.stock),
       collections: form.collections,
+      // always sent, so removing every row clears the variants; the server sets `stock` to their total
+      variants: form.variants.map((v) => ({
+        ...(v._id ? { _id: v._id } : {}),
+        size: v.size.trim(),
+        color: v.color.trim(),
+        stock: Number(v.stock),
+      })),
     };
 
     try {
@@ -190,7 +296,7 @@ export default function AdminProductsPage() {
 
       setPanelOpen(false);
       setToast(editingId ? 'Product updated' : 'Product added');
-      load();
+      load({ silent: true });
     } catch (err2) {
       setFormError(err2.message || 'Something went wrong saving this product.');
     } finally {
@@ -204,8 +310,13 @@ export default function AdminProductsPage() {
     try {
       const res = await fetch(`${API_URL}/api/products/${product._id}`, { method: 'DELETE', credentials: 'include' });
       if (!res.ok) throw new Error('failed');
-      setProducts((list) => list.filter((p) => p._id !== product._id));
+      setSelected((prev) => {
+        const next = new Set(prev);
+        next.delete(product._id);
+        return next;
+      });
       setToast('Product deleted');
+      load({ silent: true }); // totals and page contents shift up
     } catch {
       setToast('Could not delete — try again');
     } finally {
@@ -213,8 +324,171 @@ export default function AdminProductsPage() {
     }
   };
 
+  // ── ticking products + bulk actions ──────────────────────────────────────────
+  const pageIds = products.map((p) => p._id);
+  const allOnPage = pageIds.length > 0 && pageIds.every((id) => selected.has(id));
+  const someOnPage = pageIds.some((id) => selected.has(id));
+
+  const toggleOne = (id) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  const togglePage = () =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      pageIds.forEach((id) => (allOnPage ? next.delete(id) : next.add(id)));
+      return next;
+    });
+  const clearSelection = () => setSelected(new Set());
+
+  const bulkDelete = async () => {
+    const ids = [...selected];
+    if (ids.length === 0) return;
+    if (!window.confirm(`Delete ${plural(ids.length, 'product')}? This can't be undone.`)) return;
+    setBulkDeleting(true);
+    let deleted = 0;
+    try {
+      for (const part of chunk(ids, BULK_CHUNK)) {
+        const res = await fetch(`${API_URL}/api/products/bulk-delete`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: part }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.message || 'Delete failed');
+        deleted += data.deleted || 0;
+      }
+      setToast(`${plural(deleted, 'product')} deleted`);
+    } catch (err) {
+      setToast(deleted > 0 ? `Deleted ${deleted}, then it stopped: ${err.message}` : err.message || 'Could not delete — try again');
+    } finally {
+      setSelected(new Set());
+      setBulkDeleting(false);
+      load({ silent: true });
+    }
+  };
+
+  const openBulk = () => {
+    setBulk(EMPTY_BULK);
+    setBulkError('');
+    setBulkOpen(true);
+  };
+  const closeBulk = () => {
+    if (bulkSaving) return;
+    setBulkOpen(false);
+  };
+  const updateBulk = (key) => (e) => setBulk((b) => ({ ...b, [key]: e.target.value }));
+
+  // A collection can be added or removed, not both: ticking it in one list unticks it in the other
+  const toggleBulkCollection = (kind, slug) =>
+    setBulk((b) => {
+      const other = kind === 'addCollections' ? 'removeCollections' : 'addCollections';
+      const has = b[kind].includes(slug);
+      return { ...b, [kind]: has ? b[kind].filter((x) => x !== slug) : [...b[kind], slug], [other]: b[other].filter((x) => x !== slug) };
+    });
+
+  // Turns the panel into the `changes` the backend expects, or says what is wrong with it
+  const buildBulkChanges = () => {
+    const changes = {};
+    if (bulk.category.trim()) changes.category = bulk.category.trim();
+    if (bulk.addCollections.length || bulk.removeCollections.length) {
+      changes.collections = { add: bulk.addCollections, remove: bulk.removeCollections };
+    }
+    if (bulk.priceMode !== 'none') {
+      const n = Number(bulk.priceValue);
+      if (bulk.priceValue === '' || !Number.isFinite(n)) return { error: 'Enter the price change.' };
+      if (bulk.priceMode === 'set' && n < 0) return { error: 'The price can’t be negative.' };
+      if (bulk.priceMode === 'increase' && (n <= 0 || n > 1000)) return { error: 'An increase must be between 0 and 1000 percent.' };
+      if (bulk.priceMode === 'decrease' && (n <= 0 || n >= 100)) return { error: 'A decrease must be more than 0 and less than 100 percent.' };
+      changes.price = { mode: bulk.priceMode, value: n };
+    }
+    if (bulk.stockMode === 'set') {
+      const n = Number(bulk.stockValue);
+      if (bulk.stockValue === '' || !Number.isInteger(n) || n < 0) return { error: 'Stock must be a whole number, 0 or more.' };
+      changes.stock = { mode: 'set', value: n };
+    }
+    if (Object.keys(changes).length === 0) return { error: 'Choose at least one change.' };
+    return { changes };
+  };
+
+  const submitBulk = async (e) => {
+    e.preventDefault();
+    const { changes, error } = buildBulkChanges();
+    if (error) {
+      setBulkError(error);
+      return;
+    }
+    setBulkSaving(true);
+    setBulkError('');
+    const ids = [...selected];
+    let updated = 0;
+    let stockSkipped = 0;
+    const failed = [];
+    try {
+      for (const part of chunk(ids, BULK_CHUNK)) {
+        const res = await fetch(`${API_URL}/api/products/bulk`, {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: part, changes }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.message || 'Update failed');
+        updated += data.updated || 0;
+        stockSkipped += (data.stockSkipped || []).length;
+        failed.push(...(data.failed || []));
+      }
+      load({ silent: true });
+      if (failed.length > 0) {
+        // keep the panel open so the problem is readable; the ticks stay so you can fix those products and retry
+        setBulkError(`Updated ${updated}. Could not update: ${failed.map((f) => `${f.name} (${f.message})`).join('; ')}`);
+        return;
+      }
+      setBulkOpen(false);
+      setSelected(new Set());
+      setToast(
+        `Updated ${plural(updated, 'product')}` +
+          (stockSkipped > 0 ? ` · stock left as it was on ${stockSkipped} with sizes/colors (edit those one by one)` : '')
+      );
+    } catch (err2) {
+      load({ silent: true });
+      setBulkError(updated > 0 ? `Updated ${updated}, then it stopped: ${err2.message}` : err2.message || 'Something went wrong. Nothing was changed.');
+    } finally {
+      setBulkSaving(false);
+    }
+  };
+
   return (
     <main className={`${serif.variable} ${sans.variable} aur-admin`}>
+      {authLoading && <p className="aur-admin__note">Checking access…</p>}
+      {!authLoading && !isAdmin && (
+        <div className="aur-admin__head">
+          <div>
+            <p className="aur-admin__eyebrow">Aurelia · Admin</p>
+            <h1>Admin access required</h1>
+            <p className="aur-admin__note">
+              {user ? 'Your account does not have admin access.' : 'Sign in on the admin login page to manage products.'}
+            </p>
+          </div>
+          <div className="aur-admin__head-actions">
+            <Link href="/admin/login" className="aur-admin__link">
+              Admin sign in
+            </Link>
+            {user && (
+              <Link href="/" className="aur-admin__link">
+                Back to store
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
+      {!authLoading && isAdmin && (
+      <>
+      <AdminNav />
       <div className="aur-admin__head">
         <div>
           <p className="aur-admin__eyebrow">Aurelia · Admin</p>
@@ -230,20 +504,57 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
-      {status === 'loading' && <p className="aur-admin__note">Loading products…</p>}
+      <div className="aur-admin__toolbar">
+        <AdminSearchBox onSearch={setSearch} label="Search products" placeholder="Search products by name or description" />
+        {products.length > 0 && (
+          <button type="button" className="aur-admin__selectpage" onClick={togglePage}>
+            {allOnPage ? 'Unselect this page' : 'Select this page'}
+          </button>
+        )}
+      </div>
+
+      {selected.size > 0 && (
+        <div className="aur-admin__bulkbar" role="region" aria-label="Bulk actions">
+          <strong>{selected.size.toLocaleString()} selected</strong>
+          <button type="button" onClick={openBulk} disabled={bulkDeleting}>
+            Edit selected
+          </button>
+          <button type="button" className="is-danger" onClick={bulkDelete} disabled={bulkDeleting}>
+            {bulkDeleting ? 'Deleting…' : 'Delete selected'}
+          </button>
+          <button type="button" onClick={clearSelection} disabled={bulkDeleting}>
+            Clear
+          </button>
+        </div>
+      )}
+
+      {status === 'loading' && products.length === 0 && <p className="aur-admin__note">Loading products…</p>}
       {status === 'error' && (
         <p className="aur-admin__note is-error">
           Couldn&apos;t reach the backend at {API_URL}. Is it running?{' '}
-          <button type="button" onClick={load}>
+          <button type="button" onClick={() => load()}>
             Retry
           </button>
         </p>
       )}
-      {status === 'ready' && products.length === 0 && <p className="aur-admin__note">No products yet — add your first one.</p>}
+      {status === 'ready' && products.length === 0 && (
+        <p className="aur-admin__note">{search ? `No products match “${search}”.` : 'No products yet — add your first one.'}</p>
+      )}
 
-      {status === 'ready' && products.length > 0 && (
-        <div className="aur-admin__table">
+      {status !== 'error' && products.length > 0 && (
+        <div className={`aur-admin__table${status === 'loading' ? ' is-busy' : ''}`} aria-busy={status === 'loading'}>
           <div className="aur-admin__row aur-admin__row--head">
+            <span className="aur-admin__check">
+              <input
+                type="checkbox"
+                aria-label="Select all products on this page"
+                checked={allOnPage}
+                ref={(el) => {
+                  if (el) el.indeterminate = someOnPage && !allOnPage;
+                }}
+                onChange={togglePage}
+              />
+            </span>
             <span>Product</span>
             <span>Category</span>
             <span>Price</span>
@@ -251,7 +562,10 @@ export default function AdminProductsPage() {
             <span />
           </div>
           {products.map((p) => (
-            <div className="aur-admin__row" key={p._id}>
+            <div className={`aur-admin__row${selected.has(p._id) ? ' is-selected' : ''}`} key={p._id}>
+              <span className="aur-admin__check">
+                <input type="checkbox" aria-label={`Select ${p.name}`} checked={selected.has(p._id)} onChange={() => toggleOne(p._id)} />
+              </span>
               <span className="aur-admin__product">
                 {p.image ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -263,18 +577,25 @@ export default function AdminProductsPage() {
               </span>
               <span>{p.category || 'general'}</span>
               <span>{formatPKR(p.price)}</span>
-              <span className={Number(p.stock) <= 0 ? 'is-zero' : ''}>{p.stock ?? 0}</span>
+              <span className={Number(p.stock) <= 0 ? 'is-zero' : ''} title={p.variants?.length ? `${p.variants.length} variants` : undefined}>
+                {p.stock ?? 0}
+                {p.variants?.length ? <small> · {p.variants.length} var.</small> : null}
+              </span>
               <span className="aur-admin__actions">
                 <button type="button" onClick={() => openEdit(p)}>
                   Edit
                 </button>
-                <button type="button" className="is-danger" onClick={() => remove(p)} disabled={deletingId === p._id}>
+                <button type="button" className="is-danger" onClick={() => remove(p)} disabled={deletingId === p._id || bulkDeleting}>
                   {deletingId === p._id ? 'Deleting…' : 'Delete'}
                 </button>
               </span>
             </div>
           ))}
         </div>
+      )}
+
+      {status !== 'error' && (
+        <AdminPager page={page} pages={info.pages} total={info.total} limit={limit} onPage={goPage} onLimit={setLimit} noun="products" disabled={status === 'loading'} />
       )}
 
       {toast && <div className="aur-admin__toast">{toast}</div>}
@@ -301,8 +622,46 @@ export default function AdminProductsPage() {
             </label>
             <label>
               Stock
-              <input type="number" min="0" step="1" value={form.stock} onChange={updateField('stock')} placeholder="0" />
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={form.variants.length > 0 ? variantTotal : form.stock}
+                onChange={updateField('stock')}
+                placeholder="0"
+                disabled={form.variants.length > 0}
+                title={form.variants.length > 0 ? 'Total of the variants below' : undefined}
+              />
             </label>
+          </div>
+
+          <div className="aur-admin__field">
+            <span className="aur-admin__field-label">
+              Sizes &amp; colors {form.variants.length > 0 && <>(stock above is the total of these)</>}
+            </span>
+            {form.variants.length > 0 && (
+              <div className="aur-admin__variants">
+                <div className="aur-admin__variant aur-admin__variant--head" aria-hidden="true">
+                  <span>Size</span>
+                  <span>Color</span>
+                  <span>Stock</span>
+                  <span />
+                </div>
+                {form.variants.map((v, i) => (
+                  <div className="aur-admin__variant" key={v._id || `new-${i}`}>
+                    <input type="text" aria-label="Size" value={v.size} onChange={updateVariant(i, 'size')} placeholder="M" maxLength={30} />
+                    <input type="text" aria-label="Color" value={v.color} onChange={updateVariant(i, 'color')} placeholder="Black" maxLength={30} />
+                    <input type="number" aria-label="Stock" min="0" step="1" value={v.stock} onChange={updateVariant(i, 'stock')} />
+                    <button type="button" className="aur-admin__variant-x" onClick={() => removeVariant(i)} aria-label="Remove variant">
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <button type="button" className="aur-admin__variant-add" onClick={addVariant}>
+              + Add {form.variants.length > 0 ? 'another ' : 'a '}size / color
+            </button>
           </div>
 
           <label>
@@ -323,25 +682,42 @@ export default function AdminProductsPage() {
           </div>
 
           <div className="aur-admin__field">
-            <span className="aur-admin__field-label">Image</span>
-            {form.image ? (
-              <div className="aur-admin__upload-preview">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={mediaSrc(form.image)} alt="" />
-                {uploading && <span className="aur-admin__upload-overlay">Uploading…</span>}
-                <button
-                  type="button"
-                  className="aur-admin__upload-remove"
-                  onClick={() => setForm((f) => ({ ...f, image: '' }))}
-                  disabled={uploading}
-                >
-                  Remove
-                </button>
-              </div>
-            ) : (
+            <span className="aur-admin__field-label">
+              Photos <small>(the first one is the cover; up to {MAX_PHOTOS})</small>
+            </span>
+            {form.gallery.length > 0 && (
+              <ul className="aur-admin__gallery">
+                {form.gallery.map((url, i) => (
+                  <li key={url} className={i === 0 ? 'is-cover' : ''}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={mediaSrc(url)} alt="" />
+                    {i === 0 && <span className="aur-admin__cover-tag">Cover</span>}
+                    <div className="aur-admin__gallery-tools">
+                      {i > 0 && (
+                        <>
+                          <button type="button" onClick={() => makeCover(i)} disabled={uploading} title="Use as cover">
+                            Cover
+                          </button>
+                          <button type="button" onClick={() => movePhoto(i, -1)} disabled={uploading || i < 2} aria-label="Move earlier">
+                            ←
+                          </button>
+                          <button type="button" onClick={() => movePhoto(i, 1)} disabled={uploading || i === form.gallery.length - 1} aria-label="Move later">
+                            →
+                          </button>
+                        </>
+                      )}
+                      <button type="button" onClick={() => removePhoto(i)} disabled={uploading} aria-label="Remove photo">
+                        ×
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {form.gallery.length < MAX_PHOTOS && (
               <label className="aur-admin__dropzone">
-                <input type="file" accept="image/*" onChange={handleFileChange} disabled={uploading} />
-                {uploading ? 'Uploading…' : 'Click to upload an image'}
+                <input type="file" accept="image/*" multiple onChange={handleFileChange} disabled={uploading} />
+                {uploading ? 'Uploading…' : form.gallery.length === 0 ? 'Click to upload photos' : 'Add more photos'}
               </label>
             )}
             {uploadError && <p className="aur-admin__error">{uploadError}</p>}
@@ -360,393 +736,100 @@ export default function AdminProductsPage() {
         </form>
       </aside>
 
-      <style jsx global>{`
-        .aur-admin {
-          --cream: #f6efe8;
-          --ink: #181513;
-          --copper: #c98a63;
-          --line: rgba(24, 21, 19, 0.14);
-          min-height: 100vh;
-          background: var(--cream);
-          color: var(--ink);
-          font-family: var(--aur-sans), system-ui, sans-serif;
-          padding: 56px clamp(20px, 4vw, 64px) 80px;
-        }
-        .aur-admin__head {
-          display: flex;
-          align-items: flex-end;
-          justify-content: space-between;
-          flex-wrap: wrap;
-          gap: 20px;
-          margin-bottom: 36px;
-        }
-        .aur-admin__head-actions {
-          display: flex;
-          align-items: center;
-          flex-wrap: wrap;
-          gap: 18px;
-        }
-        .aur-admin__link {
-          padding: 0;
-          border: 0;
-          background: transparent;
-          color: rgba(24, 21, 19, 0.65);
-          font: inherit;
-          font-size: 0.86rem;
-          text-decoration: underline;
-          text-underline-offset: 3px;
-          cursor: pointer;
-        }
-        .aur-admin__link:hover {
-          color: var(--ink);
-        }
-        .aur-admin__eyebrow {
-          margin: 0 0 6px;
-          font-size: 0.72rem;
-          letter-spacing: 0.22em;
-          text-transform: uppercase;
-          color: rgba(24, 21, 19, 0.5);
-        }
-        .aur-admin__head h1 {
-          margin: 0;
-          font-family: var(--aur-serif), Georgia, serif;
-          font-weight: 400;
-          font-size: 2.2rem;
-        }
-        .aur-admin__addbtn {
-          height: 46px;
-          padding: 0 22px;
-          border-radius: 999px;
-          border: 1px solid var(--ink);
-          background: var(--ink);
-          color: var(--cream);
-          font: inherit;
-          font-size: 0.9rem;
-          cursor: pointer;
-        }
-        .aur-admin__note {
-          color: rgba(24, 21, 19, 0.6);
-        }
-        .aur-admin__note.is-error {
-          color: #a44b3f;
-        }
-        .aur-admin__note button {
-          border: 0;
-          background: transparent;
-          text-decoration: underline;
-          cursor: pointer;
-          color: inherit;
-          font: inherit;
-        }
+      <div className={`aur-admin__overlay ${bulkOpen ? 'is-open' : ''}`} onClick={closeBulk} />
+      <aside className={`aur-admin__panel ${bulkOpen ? 'is-open' : ''}`} role="dialog" aria-modal="true" aria-label="Edit selected products">
+        <form onSubmit={submitBulk}>
+          <h2>Edit {plural(selected.size, 'product')}</h2>
+          <p className="aur-admin__hint">Only the things you fill in are changed. Everything else on these products stays as it is.</p>
 
-        .aur-admin__table {
-          border-top: 1px solid var(--line);
-        }
-        .aur-admin__row {
-          display: grid;
-          grid-template-columns: minmax(0, 2fr) 1fr 1fr 0.6fr auto;
-          align-items: center;
-          gap: 16px;
-          padding: 14px 0;
-          border-bottom: 1px solid var(--line);
-          font-size: 0.92rem;
-        }
-        .aur-admin__row--head {
-          font-size: 0.72rem;
-          letter-spacing: 0.14em;
-          text-transform: uppercase;
-          color: rgba(24, 21, 19, 0.5);
-        }
-        .aur-admin__product {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          min-width: 0;
-        }
-        .aur-admin__product img,
-        .aur-admin__thumb-empty {
-          width: 42px;
-          height: 42px;
-          border-radius: 6px;
-          object-fit: cover;
-          background: #e4d9cd;
-          flex-shrink: 0;
-        }
-        .aur-admin__product-name {
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-        .is-zero {
-          color: #a44b3f;
-        }
-        .aur-admin__actions {
-          display: flex;
-          gap: 10px;
-          justify-content: flex-end;
-        }
-        .aur-admin__actions button {
-          border: 0;
-          background: transparent;
-          color: rgba(24, 21, 19, 0.65);
-          font: inherit;
-          font-size: 0.86rem;
-          cursor: pointer;
-          text-decoration: underline;
-          text-underline-offset: 3px;
-        }
-        .aur-admin__actions button:hover {
-          color: var(--ink);
-        }
-        .aur-admin__actions .is-danger {
-          color: #a44b3f;
-        }
+          <label>
+            Category
+            <input type="text" value={bulk.category} onChange={updateBulk('category')} placeholder="Leave empty to keep each category" maxLength={60} />
+          </label>
 
-        .aur-admin__toast {
-          position: fixed;
-          left: 50%;
-          bottom: 28px;
-          transform: translateX(-50%);
-          padding: 12px 22px;
-          border-radius: 999px;
-          background: var(--ink);
-          color: var(--cream);
-          font-size: 0.88rem;
-          z-index: 60;
-        }
+          <div className="aur-admin__field">
+            <span className="aur-admin__field-label">Add to collections</span>
+            <div className="aur-admin__collections">
+              {COLLECTION_SLUGS.map((c) => (
+                <label key={c.slug} className="aur-admin__chip">
+                  <input type="checkbox" checked={bulk.addCollections.includes(c.slug)} onChange={() => toggleBulkCollection('addCollections', c.slug)} />
+                  {c.title}
+                </label>
+              ))}
+            </div>
+          </div>
 
-        .aur-admin__overlay {
-          position: fixed;
-          inset: 0;
-          z-index: 40;
-          background: rgba(24, 21, 19, 0.4);
-          opacity: 0;
-          visibility: hidden;
-          transition: opacity 0.3s ease, visibility 0s linear 0.3s;
-        }
-        .aur-admin__overlay.is-open {
-          opacity: 1;
-          visibility: visible;
-          transition-delay: 0s;
-        }
-        .aur-admin__panel {
-          position: fixed;
-          top: 0;
-          right: 0;
-          bottom: 0;
-          z-index: 50;
-          width: min(420px, 100%);
-          overflow-y: auto;
-          background: var(--cream);
-          border-left: 1px solid var(--line);
-          box-shadow: -30px 0 60px -20px rgba(0, 0, 0, 0.25);
-          transform: translate3d(100%, 0, 0);
-          transition: transform 0.5s cubic-bezier(0.22, 0.8, 0.2, 1);
-        }
-        .aur-admin__panel.is-open {
-          transform: none;
-        }
-        .aur-admin__panel form {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-          padding: 32px 28px 40px;
-        }
-        .aur-admin__panel h2 {
-          margin: 0 0 4px;
-          font-family: var(--aur-serif), Georgia, serif;
-          font-weight: 400;
-          font-size: 1.6rem;
-        }
-        .aur-admin__panel label {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-          font-size: 0.82rem;
-          color: rgba(24, 21, 19, 0.65);
-        }
-        .aur-admin__panel input,
-        .aur-admin__panel textarea {
-          padding: 10px 12px;
-          border-radius: 8px;
-          border: 1px solid rgba(24, 21, 19, 0.22);
-          background: #fff;
-          color: var(--ink);
-          font: inherit;
-          font-size: 0.92rem;
-          resize: vertical;
-        }
-        .aur-admin__panel input:focus,
-        .aur-admin__panel textarea:focus {
-          outline: 2px solid var(--copper);
-          outline-offset: 1px;
-        }
-        .aur-admin__grid2 {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 14px;
-        }
-        .aur-admin__collections {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-        }
-        .aur-admin__chip {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          padding: 7px 12px;
-          border-radius: 999px;
-          border: 1px solid rgba(24, 21, 19, 0.22);
-          background: #fff;
-          font-size: 0.8rem;
-          color: rgba(24, 21, 19, 0.75);
-          cursor: pointer;
-          user-select: none;
-        }
-        .aur-admin__chip:has(input:checked) {
-          border-color: var(--copper);
-          background: rgba(201, 138, 99, 0.12);
-          color: var(--ink);
-        }
-        .aur-admin__chip input {
-          width: 13px;
-          height: 13px;
-          accent-color: var(--copper);
-        }
-        .aur-admin__field {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-        .aur-admin__field-label {
-          font-size: 0.82rem;
-          color: rgba(24, 21, 19, 0.65);
-        }
-        .aur-admin__dropzone {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          height: 120px;
-          border: 1px dashed rgba(24, 21, 19, 0.32);
-          border-radius: 8px;
-          color: rgba(24, 21, 19, 0.55);
-          font-size: 0.88rem;
-          text-align: center;
-          cursor: pointer;
-          transition: border-color 0.25s ease, background 0.25s ease;
-        }
-        .aur-admin__dropzone:hover {
-          border-color: var(--copper);
-          background: rgba(201, 138, 99, 0.06);
-        }
-        .aur-admin__dropzone input {
-          position: absolute;
-          width: 1px;
-          height: 1px;
-          overflow: hidden;
-          opacity: 0;
-        }
-        .aur-admin__upload-preview {
-          position: relative;
-          height: 160px;
-          border-radius: 8px;
-          overflow: hidden;
-        }
-        .aur-admin__upload-preview img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-        .aur-admin__upload-overlay {
-          position: absolute;
-          inset: 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: rgba(24, 21, 19, 0.55);
-          color: var(--cream);
-          font-size: 0.85rem;
-        }
-        .aur-admin__upload-remove {
-          position: absolute;
-          top: 8px;
-          right: 8px;
-          padding: 5px 12px;
-          border: 0;
-          border-radius: 999px;
-          background: rgba(24, 21, 19, 0.75);
-          color: var(--cream);
-          font: inherit;
-          font-size: 0.76rem;
-          cursor: pointer;
-        }
-        .aur-admin__upload-remove:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-        .aur-admin__error {
-          margin: 0;
-          padding: 10px 12px;
-          border-radius: 8px;
-          background: rgba(164, 75, 63, 0.12);
-          color: #a44b3f;
-          font-size: 0.85rem;
-        }
-        .aur-admin__panel-actions {
-          display: flex;
-          gap: 12px;
-          margin-top: 8px;
-        }
-        .aur-admin__panel-actions button {
-          flex: 1;
-          height: 46px;
-          border-radius: 999px;
-          font: inherit;
-          font-size: 0.9rem;
-          cursor: pointer;
-        }
-        .aur-admin__panel-actions button[type='button'] {
-          border: 1px solid rgba(24, 21, 19, 0.26);
-          background: transparent;
-          color: var(--ink);
-        }
-        .aur-admin__save {
-          border: 1px solid var(--ink);
-          background: var(--ink);
-          color: var(--cream);
-        }
-        .aur-admin__save:disabled,
-        .aur-admin__panel-actions button:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
+          <div className="aur-admin__field">
+            <span className="aur-admin__field-label">Remove from collections</span>
+            <div className="aur-admin__collections">
+              {COLLECTION_SLUGS.map((c) => (
+                <label key={c.slug} className="aur-admin__chip">
+                  <input type="checkbox" checked={bulk.removeCollections.includes(c.slug)} onChange={() => toggleBulkCollection('removeCollections', c.slug)} />
+                  {c.title}
+                </label>
+              ))}
+            </div>
+          </div>
 
-        @media (max-width: 720px) {
-          .aur-admin__row {
-            grid-template-columns: minmax(0, 1fr) auto;
-            grid-template-areas: 'product actions' 'meta meta';
-          }
-          .aur-admin__row--head {
-            display: none;
-          }
-          .aur-admin__product {
-            grid-area: product;
-          }
-          .aur-admin__actions {
-            grid-area: actions;
-          }
-          .aur-admin__row > span:nth-child(2),
-          .aur-admin__row > span:nth-child(3),
-          .aur-admin__row > span:nth-child(4) {
-            grid-area: meta;
-            display: inline;
-            margin-right: 12px;
-            font-size: 0.82rem;
-            color: rgba(24, 21, 19, 0.6);
-          }
-        }
-      `}</style>
+          <div className="aur-admin__field">
+            <span className="aur-admin__field-label">Price</span>
+            <div className="aur-admin__grid2">
+              <select value={bulk.priceMode} onChange={updateBulk('priceMode')} aria-label="Price change">
+                <option value="none">Keep prices</option>
+                <option value="set">Set price to (Rs)</option>
+                <option value="increase">Increase by (%)</option>
+                <option value="decrease">Decrease by (%)</option>
+              </select>
+              <input
+                type="number"
+                min="0"
+                step="any"
+                value={bulk.priceValue}
+                onChange={updateBulk('priceValue')}
+                disabled={bulk.priceMode === 'none'}
+                placeholder={bulk.priceMode === 'set' ? '5999' : '10'}
+                aria-label="Price value"
+              />
+            </div>
+            {(bulk.priceMode === 'increase' || bulk.priceMode === 'decrease') && <small className="aur-admin__hint">Rounded to whole rupees.</small>}
+          </div>
+
+          <div className="aur-admin__field">
+            <span className="aur-admin__field-label">Stock</span>
+            <div className="aur-admin__grid2">
+              <select value={bulk.stockMode} onChange={updateBulk('stockMode')} aria-label="Stock change">
+                <option value="none">Keep stock</option>
+                <option value="set">Set stock to</option>
+              </select>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={bulk.stockValue}
+                onChange={updateBulk('stockValue')}
+                disabled={bulk.stockMode === 'none'}
+                placeholder="0"
+                aria-label="Stock value"
+              />
+            </div>
+            {bulk.stockMode === 'set' && <small className="aur-admin__hint">Products with sizes / colors keep their own per-size stock; edit those one by one.</small>}
+          </div>
+
+          {bulkError && <p className="aur-admin__error">{bulkError}</p>}
+
+          <div className="aur-admin__panel-actions">
+            <button type="button" onClick={closeBulk} disabled={bulkSaving}>
+              Cancel
+            </button>
+            <button type="submit" className="aur-admin__save" disabled={bulkSaving || selected.size === 0}>
+              {bulkSaving ? 'Saving…' : `Apply to ${plural(selected.size, 'product')}`}
+            </button>
+          </div>
+        </form>
+      </aside>
+      </>
+      )}
+
     </main>
   );
 }

@@ -9,10 +9,13 @@ import Link from 'next/link';
 import { Cormorant_Garamond, Figtree } from 'next/font/google';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import VerifyEmailNotice from '@/components/VerifyEmailNotice';
+import AccountData from '@/components/AccountData';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { API_URL } from '@/lib/imageUrl';
+import './account.css';
 
 const serif = Cormorant_Garamond({ subsets: ['latin'], weight: ['400', '500'], variable: '--aur-serif', display: 'swap' });
 const sans = Figtree({ subsets: ['latin'], weight: ['300', '400', '500', '600'], variable: '--aur-sans', display: 'swap' });
@@ -24,6 +27,7 @@ export default function AccountPage() {
 
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
+    const [currentPassword, setCurrentPassword] = useState('');
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
@@ -42,13 +46,14 @@ export default function AccountPage() {
                 method: 'PUT',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, ...(password ? { password } : {}) }),
+                body: JSON.stringify({ name, ...(password ? { password, currentPassword } : {}) }),
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.message || 'Failed to update account');
             await refresh();
             setPassword('');
-            setMessage('Your details have been updated.');
+            setCurrentPassword('');
+            setMessage(password ? 'Your password has been changed. Other devices have been signed out.' : 'Your details have been updated.');
         } catch (err) {
             setError(err.message);
         } finally {
@@ -63,10 +68,22 @@ export default function AccountPage() {
                 <p className="acc-details__eyebrow">Account</p>
                 <h1>Account details</h1>
 
+                <nav className="acc-details__tabs" aria-label="Account">
+                    <Link href="/account" aria-current="page" className="is-active">Details</Link>
+                    <Link href="/account/addresses">Addresses</Link>
+                    <Link href="/account/orders">Orders</Link>
+                </nav>
+
                 {!authLoading && !user && (
                     <div className="acc-details__empty">
                         <p>You need to sign in to view your account.</p>
                         <Link href="/login" className="acc-details__cta">Sign in</Link>
+                    </div>
+                )}
+
+                {user && (
+                    <div style={{ marginBottom: 24 }}>
+                        <VerifyEmailNotice />
                     </div>
                 )}
 
@@ -91,8 +108,24 @@ export default function AccountPage() {
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="Leave blank to keep current password"
                                 autoComplete="new-password"
+                                minLength={8}
                             />
                         </label>
+
+                        {/* Only needed (and only shown) when a new password is being set */}
+                        {password && (
+                            <label>
+                                Current password
+                                <input
+                                    type="password"
+                                    required
+                                    value={currentPassword}
+                                    onChange={(e) => setCurrentPassword(e.target.value)}
+                                    autoComplete="current-password"
+                                />
+                                <small>We ask for it to make sure it&apos;s really you.</small>
+                            </label>
+                        )}
 
                         {error && <p className="acc-details__msg acc-details__msg--error">{error}</p>}
                         {message && <p className="acc-details__msg acc-details__msg--ok">{message}</p>}
@@ -102,110 +135,11 @@ export default function AccountPage() {
                         </button>
                     </form>
                 )}
+
+                {user && <AccountData />}
             </main>
             <Footer />
 
-            <style jsx global>{`
-        .acc-details {
-          --cream: #f6efe8;
-          --ink: #181513;
-          --copper: #c98a63;
-          --line: rgba(24, 21, 19, 0.16);
-          max-width: 480px;
-          margin: 0 auto;
-          padding: 140px 24px 100px;
-          font-family: var(--aur-sans), system-ui, sans-serif;
-          color: var(--ink);
-        }
-        .acc-details__eyebrow {
-          margin: 0;
-          font-size: 0.72rem;
-          letter-spacing: 0.24em;
-          text-transform: uppercase;
-          color: rgba(24, 21, 19, 0.5);
-        }
-        .acc-details h1 {
-          margin: 4px 0 32px;
-          font-family: var(--aur-serif), Georgia, serif;
-          font-weight: 400;
-          font-size: 2.2rem;
-        }
-        .acc-details__empty {
-          display: flex;
-          flex-direction: column;
-          gap: 14px;
-          align-items: flex-start;
-        }
-        .acc-details__cta {
-          display: inline-flex;
-          height: 46px;
-          padding: 0 24px;
-          align-items: center;
-          border-radius: 999px;
-          background: var(--ink);
-          color: var(--cream);
-          text-decoration: none;
-          font-size: 0.9rem;
-        }
-        .acc-details__form {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-        .acc-details__form label {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-          font-size: 0.82rem;
-          color: rgba(24, 21, 19, 0.65);
-        }
-        .acc-details__form input {
-          padding: 12px 14px;
-          border-radius: 8px;
-          border: 1px solid rgba(24, 21, 19, 0.22);
-          background: #fff;
-          color: var(--ink);
-          font: inherit;
-          font-size: 0.95rem;
-        }
-        .acc-details__form input:disabled {
-          background: rgba(24, 21, 19, 0.05);
-          color: rgba(24, 21, 19, 0.5);
-        }
-        .acc-details__form small {
-          font-size: 0.75rem;
-          color: rgba(24, 21, 19, 0.45);
-        }
-        .acc-details__msg {
-          margin: 0;
-          padding: 10px 12px;
-          border-radius: 8px;
-          font-size: 0.85rem;
-        }
-        .acc-details__msg--error {
-          background: rgba(164, 75, 63, 0.12);
-          color: #a44b3f;
-        }
-        .acc-details__msg--ok {
-          background: rgba(90, 140, 100, 0.15);
-          color: #3f6e4a;
-        }
-        .acc-details__form button {
-          height: 48px;
-          margin-top: 4px;
-          border-radius: 999px;
-          border: 1px solid var(--ink);
-          background: var(--ink);
-          color: var(--cream);
-          font: inherit;
-          font-size: 0.95rem;
-          cursor: pointer;
-        }
-        .acc-details__form button:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
-      `}</style>
         </>
     );
 }

@@ -1,0 +1,585 @@
+/* admin-products.css — moved out of page.js (it used to be a <style jsx global> block there). Plain CSS, same rules. */
+.aur-admin {
+  --cream: #f6efe8;
+  --ink: #181513;
+  --copper: #c98a63;
+  --line: rgba(24, 21, 19, 0.14);
+  min-height: 100vh;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--aur-sans), system-ui, sans-serif;
+  padding: 56px clamp(20px, 4vw, 64px) 80px;
+}
+.aur-admin__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 36px;
+}
+.aur-admin__head-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+.aur-admin__link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(24, 21, 19, 0.65);
+  font: inherit;
+  font-size: 0.86rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.aur-admin__link:hover {
+  color: var(--ink);
+}
+.aur-admin__eyebrow {
+  margin: 0 0 6px;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(24, 21, 19, 0.62);
+}
+.aur-admin__head h1 {
+  margin: 0;
+  font-family: var(--aur-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: 2.2rem;
+}
+.aur-admin__addbtn {
+  height: 46px;
+  padding: 0 22px;
+  border-radius: 999px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--cream);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.aur-admin__note {
+  color: rgba(24, 21, 19, 0.6);
+}
+.aur-admin__note.is-error {
+  color: #a44b3f;
+}
+.aur-admin__note button {
+  border: 0;
+  background: transparent;
+  text-decoration: underline;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+
+.aur-admin__table {
+  border-top: 1px solid var(--line);
+}
+.aur-admin__row {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 2fr) 1fr 1fr 0.6fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.92rem;
+}
+.aur-admin__row--head {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(24, 21, 19, 0.62);
+}
+.aur-admin__product {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.aur-admin__product img,
+.aur-admin__thumb-empty {
+  width: 42px;
+  height: 42px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #e4d9cd;
+  flex-shrink: 0;
+}
+.aur-admin__product-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.is-zero {
+  color: #a44b3f;
+}
+.aur-admin__toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.aur-admin__selectpage {
+  display: none;
+  padding: 8px 14px;
+  border: 1px solid rgba(24, 21, 19, 0.22);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.aur-admin__bulkbar {
+  position: sticky;
+  top: 8px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-bottom: 14px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: var(--ink);
+  color: var(--cream);
+  font-size: 0.88rem;
+}
+.aur-admin__bulkbar button {
+  padding: 6px 14px;
+  border: 1px solid rgba(246, 239, 232, 0.5);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--cream);
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.aur-admin__bulkbar button:hover:not(:disabled) {
+  background: rgba(246, 239, 232, 0.14);
+}
+.aur-admin__bulkbar button.is-danger {
+  border-color: #e0988b;
+  color: #f2b8ad;
+}
+.aur-admin__bulkbar button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.aur-admin__bulkbar button:last-child {
+  margin-left: auto;
+  border-color: transparent;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.aur-admin__check input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--copper);
+  cursor: pointer;
+}
+.aur-admin__row.is-selected {
+  background: rgba(201, 138, 99, 0.1);
+}
+.aur-admin__table.is-busy {
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+.aur-admin__hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: rgba(24, 21, 19, 0.62);
+  line-height: 1.5;
+}
+.aur-admin__actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.aur-admin__actions button {
+  border: 0;
+  background: transparent;
+  color: rgba(24, 21, 19, 0.65);
+  font: inherit;
+  font-size: 0.86rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.aur-admin__actions button:hover {
+  color: var(--ink);
+}
+.aur-admin__actions .is-danger {
+  color: #a44b3f;
+}
+
+.aur-admin__toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  padding: 12px 22px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--cream);
+  font-size: 0.88rem;
+  z-index: 60;
+}
+
+.aur-admin__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(24, 21, 19, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+}
+.aur-admin__overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+.aur-admin__panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  width: min(420px, 100%);
+  overflow-y: auto;
+  background: var(--cream);
+  border-left: 1px solid var(--line);
+  box-shadow: -30px 0 60px -20px rgba(0, 0, 0, 0.25);
+  transform: translate3d(100%, 0, 0);
+  transition: transform 0.5s cubic-bezier(0.22, 0.8, 0.2, 1);
+}
+.aur-admin__panel.is-open {
+  transform: none;
+}
+.aur-admin__panel form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 32px 28px 40px;
+}
+.aur-admin__panel h2 {
+  margin: 0 0 4px;
+  font-family: var(--aur-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: 1.6rem;
+}
+.aur-admin__panel label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: rgba(24, 21, 19, 0.65);
+}
+.aur-admin__panel input,
+.aur-admin__panel select,
+.aur-admin__panel textarea {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(24, 21, 19, 0.22);
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.92rem;
+  resize: vertical;
+}
+.aur-admin__panel input:focus,
+.aur-admin__panel select:focus,
+.aur-admin__panel textarea:focus {
+  outline: 2px solid var(--copper);
+  outline-offset: 1px;
+}
+.aur-admin__grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.aur-admin__variants {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.aur-admin__variant {
+  display: grid;
+  grid-template-columns: 1fr 1fr 80px 32px;
+  gap: 8px;
+  align-items: center;
+}
+.aur-admin__variant--head {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(24, 21, 19, 0.62);
+}
+.aur-admin__variant input {
+  min-width: 0;
+  width: 100%;
+}
+.aur-admin__variant-x,
+.aur-admin__variant-add {
+  border: 1px solid rgba(24, 21, 19, 0.22);
+  background: #fff;
+  color: var(--ink);
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+}
+.aur-admin__variant-x {
+  height: 36px;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.aur-admin__variant-add {
+  align-self: flex-start;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+}
+.aur-admin__variant-x:hover,
+.aur-admin__variant-add:hover {
+  border-color: var(--copper);
+}
+.aur-admin__panel input:disabled {
+  background: rgba(24, 21, 19, 0.05);
+  color: rgba(24, 21, 19, 0.62);
+}
+.aur-admin__collections {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.aur-admin__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(24, 21, 19, 0.22);
+  background: #fff;
+  font-size: 0.8rem;
+  color: rgba(24, 21, 19, 0.75);
+  cursor: pointer;
+  user-select: none;
+}
+.aur-admin__chip:has(input:checked) {
+  border-color: var(--copper);
+  background: rgba(201, 138, 99, 0.12);
+  color: var(--ink);
+}
+.aur-admin__chip input {
+  width: 13px;
+  height: 13px;
+  accent-color: var(--copper);
+}
+.aur-admin__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.aur-admin__field-label {
+  font-size: 0.82rem;
+  color: rgba(24, 21, 19, 0.65);
+}
+.aur-admin__gallery {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.aur-admin__gallery li {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(24, 21, 19, 0.18);
+  background: #eee;
+}
+.aur-admin__gallery li.is-cover {
+  border-color: var(--copper);
+  box-shadow: 0 0 0 1px var(--copper);
+}
+.aur-admin__gallery img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.aur-admin__cover-tag {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--copper);
+  color: #fff;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.aur-admin__gallery-tools {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  left: 4px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+}
+.aur-admin__gallery-tools button {
+  min-width: 26px;
+  height: 26px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 6px;
+  background: rgba(24, 21, 19, 0.78);
+  color: #fff;
+  font: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+.aur-admin__gallery-tools button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.aur-admin__dropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 120px;
+  border: 1px dashed rgba(24, 21, 19, 0.32);
+  border-radius: 8px;
+  color: rgba(24, 21, 19, 0.62);
+  font-size: 0.88rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.25s ease, background 0.25s ease;
+}
+.aur-admin__dropzone:hover {
+  border-color: var(--copper);
+  background: rgba(201, 138, 99, 0.06);
+}
+.aur-admin__dropzone input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+}
+.aur-admin__upload-preview {
+  position: relative;
+  height: 160px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.aur-admin__upload-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.aur-admin__upload-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(24, 21, 19, 0.55);
+  color: var(--cream);
+  font-size: 0.85rem;
+}
+.aur-admin__upload-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 5px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(24, 21, 19, 0.75);
+  color: var(--cream);
+  font: inherit;
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+.aur-admin__upload-remove:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.aur-admin__error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(164, 75, 63, 0.12);
+  color: #a44b3f;
+  font-size: 0.85rem;
+}
+.aur-admin__panel-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+.aur-admin__panel-actions button {
+  flex: 1;
+  height: 46px;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.aur-admin__panel-actions button[type='button'] {
+  border: 1px solid rgba(24, 21, 19, 0.26);
+  background: transparent;
+  color: var(--ink);
+}
+.aur-admin__save {
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--cream);
+}
+.aur-admin__save:disabled,
+.aur-admin__panel-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 720px) {
+  .aur-admin__row {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: 'check product actions' 'meta meta meta';
+  }
+  .aur-admin__check {
+    grid-area: check;
+  }
+  .aur-admin__selectpage {
+    display: inline-block;
+  }
+  .aur-admin__row--head {
+    display: none;
+  }
+  .aur-admin__product {
+    grid-area: product;
+  }
+  .aur-admin__actions {
+    grid-area: actions;
+  }
+  .aur-admin__row > span:nth-child(3),
+  .aur-admin__row > span:nth-child(4),
+  .aur-admin__row > span:nth-child(5) {
+    grid-area: meta;
+    display: inline;
+    margin-right: 12px;
+    font-size: 0.82rem;
+    color: rgba(24, 21, 19, 0.6);
+  }
+}

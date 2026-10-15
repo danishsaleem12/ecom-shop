@@ -1,0 +1,45 @@
+/* Stars.css — moved out of Stars.js (it used to be a <style jsx global> block there). Plain CSS, same rules. */
+.aur-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1;
+}
+.aur-stars__stack {
+  position: relative;
+  display: inline-block;
+  line-height: 0;
+}
+.aur-stars__clip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.aur-stars__row {
+  display: inline-flex;
+  gap: 2px;
+  flex-wrap: nowrap;
+}
+.aur-stars__row svg {
+  display: block;
+  flex: none;
+  stroke: #c98a63;
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+.aur-stars__row svg.is-empty {
+  fill: none;
+  opacity: 0.55;
+}
+.aur-stars__row svg.is-full {
+  fill: #c98a63;
+}
+.aur-stars__text {
+  font-size: 0.82rem;
+  color: rgba(24, 21, 19, 0.7);
+}
+.aur-stars__text span {
+  color: rgba(24, 21, 19, 0.55);
+}

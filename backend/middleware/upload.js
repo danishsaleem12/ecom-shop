@@ -1,31 +1,15 @@
 //backend/middleware/upload.js
-
+// multer only parses and validates the upload and keeps it in memory.
+// WHERE it is stored (Cloudinary or local disk) is decided by utils/imageStorage.js.
 const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
-const crypto = require("crypto");
 
-const UPLOAD_DIR = path.join(__dirname, "..", "uploads");
-fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-
-const ALLOWED = {
-  "image/jpeg": ".jpg",
-  "image/png": ".png",
-  "image/webp": ".webp",
-  "image/avif": ".avif",
-};
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, UPLOAD_DIR),
-  filename: (req, file, cb) =>
-    cb(null, `${Date.now()}-${crypto.randomBytes(6).toString("hex")}${ALLOWED[file.mimetype]}`),
-});
+const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/avif"];
 
 module.exports = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
   fileFilter: (req, file, cb) =>
-    ALLOWED[file.mimetype]
+    ALLOWED.includes(file.mimetype)
       ? cb(null, true)
-      : cb(new Error("Only JPG, PNG, WebP or AVIF images are allowed")),
+      : cb(Object.assign(new Error("Only JPG, PNG, WebP or AVIF images are allowed"), { code: "INVALID_FILE_TYPE" })),
 });

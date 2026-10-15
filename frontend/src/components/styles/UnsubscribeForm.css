@@ -1,0 +1,77 @@
+/* UnsubscribeForm.css — moved out of UnsubscribeForm.js (it used to be a <style jsx global> block there). Plain CSS, same rules. */
+.aur-unsub {
+  --cream: #f6efe8;
+  --ink: #181513;
+  --copper: #c98a63;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--aur-sans), system-ui, sans-serif;
+}
+.aur-unsub__card {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+.aur-unsub__eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(24, 21, 19, 0.62);
+}
+.aur-unsub h1 {
+  margin: 4px 0 0;
+  font-family: var(--aur-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: 2.2rem;
+}
+.aur-unsub__text {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: rgba(24, 21, 19, 0.7);
+  overflow-wrap: anywhere;
+}
+.aur-unsub__text a,
+.aur-unsub__link {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-size: 0.9rem;
+}
+.aur-unsub__error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(164, 75, 63, 0.12);
+  color: #a44b3f;
+  font-size: 0.85rem;
+}
+.aur-unsub__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  margin-top: 6px;
+  padding: 0 28px;
+  border-radius: 999px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--cream);
+  font: inherit;
+  font-size: 0.95rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+.aur-unsub__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

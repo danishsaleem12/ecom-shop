@@ -7,20 +7,31 @@
     "dev": "nodemon index.js",
     "start": "node index.js",
     "seed": "node seed.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "seed:reset": "node seed.js --reset",
+    "make-admin": "node seed.js --admin-only",
+    "admin:set-password": "node seed.js --admin-only --set-password",
+    "images:migrate": "node scripts/migrate-uploads-to-cloudinary.js",
+    "orders:backfill": "node scripts/backfill-order-numbers.js",
+    "backup": "node scripts/backup-db.js",
+    "restore": "node scripts/restore-db.js",
+    "test": "node --test \"tests/*.test.js\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.11.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.10.1",
-    "multer": "^2.4.0"
+    "multer": "^2.4.0",
+    "nodemailer": "^7.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

@@ -1,0 +1,251 @@
+/* track-order.css — moved out of page.js (it used to be a <style jsx global> block there). Plain CSS, same rules. */
+.track {
+  --cream: #f6efe8;
+  --ink: #181513;
+  --copper: #c98a63;
+  --line: rgba(24, 21, 19, 0.14);
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 140px 24px 100px;
+  font-family: var(--aur-sans), system-ui, sans-serif;
+  color: var(--ink);
+}
+.track__eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(24, 21, 19, 0.62);
+}
+.track h1 {
+  margin: 4px 0 16px;
+  font-family: var(--aur-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: 2.4rem;
+}
+.track__sub {
+  margin: 0 0 28px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgba(24, 21, 19, 0.65);
+}
+.track__sub em {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--ink);
+}
+.track__signin {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 20px 0;
+}
+.track__cta {
+  display: inline-flex;
+  height: 46px;
+  padding: 0 24px;
+  align-items: center;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--cream);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+.track__form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.track__form input {
+  flex: 1 1 200px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(24, 21, 19, 0.22);
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.95rem;
+}
+.track__form input:focus {
+  outline: 2px solid var(--copper);
+  outline-offset: 1px;
+}
+.track__form button {
+  padding: 0 22px;
+  border-radius: 999px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--cream);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.track__form button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.track__msg {
+  margin: 20px 0 0;
+  font-size: 0.9rem;
+  color: rgba(24, 21, 19, 0.65);
+}
+.track__msg a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.track__msg--error {
+  color: #a44b3f;
+}
+.track__card {
+  margin-top: 26px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 20px 22px;
+}
+.track__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.track__top div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.track__top span {
+  font-size: 0.82rem;
+  color: rgba(24, 21, 19, 0.62);
+}
+.track__badge {
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  background: rgba(24, 21, 19, 0.08);
+}
+.track__badge--delivered {
+  background: rgba(90, 140, 100, 0.15);
+  color: #3f6e4a;
+}
+.track__badge--cancelled {
+  background: rgba(164, 75, 63, 0.15);
+  color: #a44b3f;
+}
+.track__badge--shipped,
+.track__badge--processing {
+  background: rgba(201, 138, 99, 0.18);
+  color: #8a5a3a;
+}
+.track__steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  list-style: none;
+  margin: 0;
+  padding: 18px 0 6px;
+  border-bottom: 1px solid var(--line);
+}
+.track__steps li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: rgba(24, 21, 19, 0.62);
+}
+.track__steps li i {
+  position: relative;
+  z-index: 1;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #e4d9cd;
+}
+.track__steps li::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  right: 50%;
+  width: 100%;
+  height: 2px;
+  background: #e4d9cd;
+}
+.track__steps li:first-child::before {
+  display: none;
+}
+.track__steps li.is-done {
+  color: var(--ink);
+}
+.track__steps li.is-done i,
+.track__steps li.is-done::before {
+  background: var(--copper);
+}
+.track__items {
+  list-style: none;
+  margin: 0;
+  padding: 14px 0;
+}
+.track__items li {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 0;
+}
+.track__thumb {
+  width: 48px;
+  height: 60px;
+  border-radius: 8px;
+  background-color: rgba(24, 21, 19, 0.06);
+  background-size: cover;
+  background-position: center;
+}
+.track__itemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.track__itemInfo small {
+  color: rgba(24, 21, 19, 0.62);
+  font-size: 0.8rem;
+}
+.track__tracking {
+  margin: 16px 0 0;
+  padding: 10px 14px;
+  border-radius: 6px;
+  background: rgba(201, 138, 99, 0.12);
+  font-size: 0.88rem;
+  color: rgba(24, 21, 19, 0.8);
+  word-break: break-word;
+}
+.track__tracking strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+.track__foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 0.9rem;
+}
+.track__foot strong {
+  font-family: var(--aur-serif), Georgia, serif;
+  font-size: 1.4rem;
+  font-weight: 400;
+}
+@media (max-width: 480px) {
+  .track__form {
+    flex-direction: column;
+  }
+  .track__form input {
+    flex-basis: auto;
+  }
+}

@@ -17,7 +17,13 @@
 
 import { useEffect, useState, use } from 'react';
 import Link from 'next/link';
+import { useCart, hasVariants } from '@/context/CartContext';
+import { imageSrc } from '@/lib/imageUrl';
+import Stars from '@/components/Stars';
+import ProductReviews from '@/components/ProductReviews';
+import RelatedProducts from '@/components/RelatedProducts';
 import { Cormorant_Garamond, Figtree } from 'next/font/google';
+import './product-page.css';
 
 const serif = Cormorant_Garamond({
   subsets: ['latin'],
@@ -58,18 +64,26 @@ const ArrowLeft = () => (
   </svg>
 );
 
-export default function ProductPage({ params, onAddToCart }) {
+export default function ProductPage({ params }) {
   const { id } = use(params);
+  const { addItem } = useCart();
   const [product, setProduct] = useState(null);
   const [status, setStatus] = useState('loading'); // loading | ready | error | notfound
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+  const [shot, setShot] = useState(0); // which gallery photo is showing
+  const [size, setSize] = useState('');
+  const [color, setColor] = useState('');
   const [attempt, setAttempt] = useState(0);
+  const [rating, setRating] = useState({ average: 0, count: 0 }); // from the product, then kept fresh by the reviews block
 
   useEffect(() => {
     const controller = new AbortController();
     setStatus('loading');
     setQty(1);
+    setShot(0);
+    setSize('');
+    setColor('');
 
     fetch(`${API_URL}/api/products/${id}`, { signal: controller.signal })
       .then((res) => {
@@ -79,6 +93,7 @@ export default function ProductPage({ params, onAddToCart }) {
       })
       .then((data) => {
         setProduct(data);
+        setRating({ average: data.ratingAverage || 0, count: data.ratingCount || 0 });
         setStatus('ready');
       })
       .catch((err) => {
@@ -89,13 +104,66 @@ export default function ProductPage({ params, onAddToCart }) {
     return () => controller.abort();
   }, [id, attempt]);
 
-  const handleAdd = () => {
-    setAdded(true);
-    if (typeof onAddToCart === 'function' && product) onAddToCart({ ...product, qty });
-    setTimeout(() => setAdded(false), 2200);
+  // ── gallery: the cover first, then the extra photos ──────────────────────────
+  const photos = product ? [product.image, ...(Array.isArray(product.images) ? product.images : [])].filter(Boolean) : [];
+  const shotIndex = Math.min(shot, Math.max(photos.length - 1, 0));
+  const go = (dir) => setShot((i) => (Math.min(i, photos.length - 1) + dir + photos.length) % photos.length);
+  const onGalleryKey = (e) => {
+    if (photos.length < 2) return;
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      go(-1);
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      go(1);
+    }
   };
 
-  const inStock = product ? (product.stock ?? 0) > 0 : false;
+  // ── sizes / colors ──────────────────────────────────────────────────────────
+  const withOptions = hasVariants(product);
+  const variants = withOptions ? product.variants : [];
+  const sizes = [...new Set(variants.map((v) => v.size).filter(Boolean))];
+  const colors = [...new Set(variants.map((v) => v.color).filter(Boolean))];
+
+  // Pick a size/color automatically when there is only one to pick from
+  const effSize = size || (sizes.length === 1 ? sizes[0] : '');
+  const effColor = color || (colors.length === 1 ? colors[0] : '');
+
+  // The variant that matches the choices so far (a dimension the product doesn't use matches ''), or null
+  const selected = withOptions
+    ? variants.find((v) => (v.size || '') === (sizes.length ? effSize : '') && (v.color || '') === (colors.length ? effColor : '')) || null
+    : null;
+
+  // An option is greyed out when nothing in stock matches it together with what is already chosen
+  const optionAvailable = (kind, value) =>
+    variants.some(
+      (v) =>
+        v.stock > 0 &&
+        (kind === 'size' ? v.size === value : v.size === effSize || !effSize || !sizes.length) &&
+        (kind === 'color' ? v.color === value : v.color === effColor || !effColor || !colors.length)
+    );
+
+  const needsChoice = withOptions && !selected;
+  const available = withOptions ? (selected ? selected.stock : 0) : product?.stock ?? 0;
+  const inStock = product ? (withOptions ? product.stock > 0 : available > 0) : false;
+  const canBuy = withOptions ? !!selected && selected.stock > 0 : inStock;
+
+  const handleAdd = () => {
+    if (!product || !canBuy) return;
+    if (addItem(product, qty, selected)) {
+      setAdded(true);
+      setTimeout(() => setAdded(false), 2200);
+    }
+  };
+
+  const chooseSize = (v) => {
+    setSize(v === size ? '' : v);
+    setQty(1);
+  };
+  const chooseColor = (v) => {
+    setColor(v === color ? '' : v);
+    setQty(1);
+  };
 
   return (
     <main className={`${serif.variable} ${sans.variable} aur-pdp`}>
@@ -136,286 +204,148 @@ export default function ProductPage({ params, onAddToCart }) {
 
       {status === 'ready' && product && (
         <div className="aur-pdp__layout">
-          <div className="aur-pdp__image">
-            {product.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={product.image} alt={product.name} />
-            ) : (
-              <span className="aur-pdp__placeholder" />
+          <div className="aur-pdp__gallery" onKeyDown={onGalleryKey}>
+            <div className="aur-pdp__image">
+              {photos.length > 0 ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={imageSrc(photos[shotIndex])} alt={`${product.name} — photo ${shotIndex + 1} of ${photos.length}`} />
+              ) : (
+                <span className="aur-pdp__placeholder" />
+              )}
+              {!inStock && <span className="aur-pdp__badge">Sold out</span>}
+              {photos.length > 1 && (
+                <>
+                  <button type="button" className="aur-pdp__nav aur-pdp__nav--prev" onClick={() => go(-1)} aria-label="Previous photo">
+                    <ArrowLeft />
+                  </button>
+                  <button type="button" className="aur-pdp__nav aur-pdp__nav--next" onClick={() => go(1)} aria-label="Next photo">
+                    <ArrowLeft />
+                  </button>
+                  <span className="aur-pdp__count" aria-hidden="true">
+                    {shotIndex + 1} / {photos.length}
+                  </span>
+                </>
+              )}
+            </div>
+            {photos.length > 1 && (
+              <div className="aur-pdp__thumbs" role="group" aria-label="Product photos">
+                {photos.map((url, i) => (
+                  <button
+                    key={url}
+                    type="button"
+                    className={`aur-pdp__thumb ${i === shotIndex ? 'is-on' : ''}`}
+                    aria-label={`Show photo ${i + 1}`}
+                    aria-current={i === shotIndex}
+                    onClick={() => setShot(i)}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={imageSrc(url)} alt="" loading="lazy" />
+                  </button>
+                ))}
+              </div>
             )}
-            {!inStock && <span className="aur-pdp__badge">Sold out</span>}
           </div>
 
           <div className="aur-pdp__body">
             <p className="aur-pdp__category">{product.category || 'general'}</p>
             <h1 className="aur-pdp__name">{product.name}</h1>
+            <a href="#reviews" className="aur-pdp__rating">
+              {rating.count > 0 ? (
+                <>
+                  <Stars value={rating.average} count={rating.count} size={16} />
+                  <span>
+                    {rating.average.toFixed(1)} · {rating.count} {rating.count === 1 ? 'review' : 'reviews'}
+                  </span>
+                </>
+              ) : (
+                <span>No reviews yet</span>
+              )}
+            </a>
             <p className="aur-pdp__price">{formatPKR(product.price)}</p>
 
             {product.description && <p className="aur-pdp__desc">{product.description}</p>}
 
+            {withOptions && sizes.length > 0 && (
+              <fieldset className="aur-pdp__opts">
+                <legend>Size{effSize ? <strong>: {effSize}</strong> : null}</legend>
+                <Link href="/size-guide" className="aur-pdp__sizeguide">
+                  Size guide
+                </Link>
+                <div className="aur-pdp__chips">
+                  {sizes.map((v) => (
+                    <button
+                      key={v}
+                      type="button"
+                      className={`aur-pdp__chip ${effSize === v ? 'is-on' : ''}`}
+                      aria-pressed={effSize === v}
+                      disabled={!optionAvailable('size', v)}
+                      onClick={() => chooseSize(v)}
+                    >
+                      {v}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+            )}
+
+            {withOptions && colors.length > 0 && (
+              <fieldset className="aur-pdp__opts">
+                <legend>Color{effColor ? <strong>: {effColor}</strong> : null}</legend>
+                <div className="aur-pdp__chips">
+                  {colors.map((v) => (
+                    <button
+                      key={v}
+                      type="button"
+                      className={`aur-pdp__chip ${effColor === v ? 'is-on' : ''}`}
+                      aria-pressed={effColor === v}
+                      disabled={!optionAvailable('color', v)}
+                      onClick={() => chooseColor(v)}
+                    >
+                      {v}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+            )}
+
             <p className="aur-pdp__stock">
-              {inStock ? `${product.stock} in stock` : 'Currently unavailable'}
+              {!inStock
+                ? 'Currently unavailable'
+                : needsChoice
+                  ? `Choose ${[sizes.length && !effSize ? 'a size' : '', colors.length && !effColor ? 'a color' : ''].filter(Boolean).join(' and ') || 'an option'}`
+                  : available > 0
+                    ? `${available} in stock`
+                    : 'This option is sold out'}
             </p>
 
             <div className="aur-pdp__actions">
               <div className="aur-pdp__step" role="group" aria-label="Quantity">
-                <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="Decrease quantity" disabled={!inStock}>
+                <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="Decrease quantity" disabled={!canBuy}>
                   <MinusIcon />
                 </button>
                 <span>{qty}</span>
                 <button
                   type="button"
-                  onClick={() => setQty((q) => Math.min(product.stock || 1, q + 1))}
+                  onClick={() => setQty((q) => Math.min(available || 1, q + 1))}
                   aria-label="Increase quantity"
-                  disabled={!inStock}
+                  disabled={!canBuy}
                 >
                   <PlusIcon />
                 </button>
               </div>
 
-              <button type="button" className={`aur-pdp__add ${added ? 'is-added' : ''}`} onClick={handleAdd} disabled={!inStock}>
-                {added ? 'Added to bag' : inStock ? 'Add to bag' : 'Sold out'}
+              <button type="button" className={`aur-pdp__add ${added ? 'is-added' : ''}`} onClick={handleAdd} disabled={!canBuy}>
+                {added ? 'Added to bag' : !inStock ? 'Sold out' : needsChoice ? 'Choose an option' : canBuy ? 'Add to bag' : 'Sold out'}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      <style jsx global>{`
-        .aur-pdp {
-          --cream: #f6efe8;
-          --blush: #f0dcd2;
-          --copper: #c98a63;
-          --ink: #181513;
-          --line: rgba(24, 21, 19, 0.14);
-          --gutter: clamp(20px, 5.2vw, 96px);
-          --ease-out: cubic-bezier(0.22, 0.8, 0.2, 1);
-          min-height: 100vh;
-          background: var(--cream);
-          color: var(--ink);
-          font-family: var(--aur-sans), system-ui, sans-serif;
-          padding: clamp(110px, 12vw, 150px) var(--gutter) 80px;
-        }
-        .aur-pdp__back {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          margin-bottom: clamp(28px, 4vw, 48px);
-          font-size: 0.88rem;
-          color: rgba(24, 21, 19, 0.68);
-          text-decoration: none;
-        }
-        .aur-pdp__back:hover {
-          color: var(--ink);
-        }
+      {status === 'ready' && product && <RelatedProducts productId={product._id} category={product.category} />}
 
-        .aur-pdp__layout {
-          display: grid;
-          grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-          gap: clamp(32px, 5vw, 80px);
-          align-items: start;
-        }
+      {status === 'ready' && product && <ProductReviews productId={product._id} onSummary={setRating} />}
 
-        .aur-pdp__image {
-          position: relative;
-          border-radius: 6px;
-          overflow: hidden;
-          background: #e4d9cd;
-          aspect-ratio: 4 / 5;
-        }
-        .aur-pdp__image img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-        .aur-pdp__placeholder {
-          display: block;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(135deg, #ece1d5, #d9c8b5);
-        }
-        .aur-pdp__badge {
-          position: absolute;
-          top: 18px;
-          left: 18px;
-          padding: 6px 14px;
-          border-radius: 999px;
-          background: rgba(24, 21, 19, 0.85);
-          color: var(--cream);
-          font-size: 0.72rem;
-          font-weight: 500;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-        }
-
-        .aur-pdp__category {
-          margin: 0 0 10px;
-          font-size: 0.74rem;
-          font-weight: 500;
-          letter-spacing: 0.24em;
-          text-transform: uppercase;
-          color: rgba(24, 21, 19, 0.5);
-        }
-        .aur-pdp__name {
-          margin: 0;
-          font-family: var(--aur-serif), Georgia, serif;
-          font-weight: 400;
-          font-size: clamp(2.2rem, 3.6vw, 3rem);
-          line-height: 1.1;
-        }
-        .aur-pdp__price {
-          margin: 16px 0 0;
-          font-size: 1.35rem;
-          color: var(--copper);
-        }
-        .aur-pdp__desc {
-          margin: 26px 0 0;
-          max-width: 52ch;
-          font-size: 1rem;
-          font-weight: 300;
-          line-height: 1.75;
-          color: rgba(24, 21, 19, 0.75);
-        }
-        .aur-pdp__stock {
-          margin: 22px 0 0;
-          font-size: 0.86rem;
-          color: rgba(24, 21, 19, 0.55);
-        }
-
-        .aur-pdp__actions {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          margin-top: 30px;
-        }
-        .aur-pdp__step {
-          display: inline-flex;
-          align-items: center;
-          border-radius: 999px;
-          border: 1px solid rgba(24, 21, 19, 0.26);
-        }
-        .aur-pdp__step button {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 40px;
-          height: 44px;
-          padding: 0;
-          border: 0;
-          background: transparent;
-          color: var(--ink);
-          cursor: pointer;
-        }
-        .aur-pdp__step button:disabled {
-          opacity: 0.35;
-          cursor: not-allowed;
-        }
-        .aur-pdp__step span {
-          min-width: 30px;
-          text-align: center;
-          font-size: 0.95rem;
-        }
-        .aur-pdp__add {
-          flex: 1;
-          height: 52px;
-          padding: 0 28px;
-          border-radius: 999px;
-          border: 1px solid var(--ink);
-          background: var(--ink);
-          color: var(--cream);
-          font: inherit;
-          font-size: 0.95rem;
-          font-weight: 500;
-          cursor: pointer;
-          transition: background 0.3s ease, color 0.3s ease, transform 0.4s var(--ease-out);
-        }
-        .aur-pdp__add:hover:not(:disabled) {
-          transform: translateY(-2px);
-        }
-        .aur-pdp__add.is-added {
-          background: #6f8f74;
-          border-color: #6f8f74;
-        }
-        .aur-pdp__add:disabled {
-          background: transparent;
-          color: rgba(24, 21, 19, 0.4);
-          border-color: rgba(24, 21, 19, 0.26);
-          cursor: not-allowed;
-        }
-
-        .aur-pdp__state {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 14px;
-          padding: 80px 20px;
-          text-align: center;
-          color: rgba(24, 21, 19, 0.7);
-        }
-        .aur-pdp__state h2 {
-          margin: 0;
-          font-family: var(--aur-serif), Georgia, serif;
-          font-weight: 400;
-          font-size: 1.8rem;
-          color: var(--ink);
-        }
-        .aur-pdp__cta {
-          display: inline-flex;
-          margin-top: 8px;
-          padding: 12px 26px;
-          border-radius: 999px;
-          border: 1px solid var(--ink);
-          background: transparent;
-          color: var(--ink);
-          font: inherit;
-          font-size: 0.9rem;
-          text-decoration: none;
-          cursor: pointer;
-        }
-        .aur-pdp__cta:hover {
-          background: var(--ink);
-          color: var(--cream);
-        }
-
-        .aur-pdp__skel-img,
-        .aur-pdp__skel-line {
-          border-radius: 6px;
-          background: linear-gradient(100deg, #e9dfd2 30%, #f3ebe0 50%, #e9dfd2 70%);
-          background-size: 200% 100%;
-          animation: aurPdpShimmer 1.6s ease-in-out infinite;
-        }
-        .aur-pdp__skel-img {
-          aspect-ratio: 4 / 5;
-        }
-        @keyframes aurPdpShimmer {
-          0% {
-            background-position: 200% 0;
-          }
-          100% {
-            background-position: -200% 0;
-          }
-        }
-
-        @media (max-width: 780px) {
-          .aur-pdp__layout {
-            grid-template-columns: 1fr;
-          }
-          .aur-pdp__actions {
-            flex-direction: column;
-            align-items: stretch;
-          }
-          .aur-pdp__step {
-            justify-content: center;
-          }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .aur-pdp * {
-            animation-duration: 0.01ms !important;
-            transition-duration: 0.01ms !important;
-          }
-        }
-      `}</style>
     </main>
   );
 }

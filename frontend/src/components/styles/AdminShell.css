@@ -1,0 +1,291 @@
+/* AdminShell.css — moved out of AdminShell.js (it used to be a <style jsx global> block there). Plain CSS, same rules. */
+.adm {
+  --cream: #f6efe8;
+  --ink: #181513;
+  --copper: #c98a63;
+  --line: rgba(24, 21, 19, 0.14);
+  min-height: 100vh;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--aur-sans), system-ui, sans-serif;
+  padding: 40px clamp(20px, 4vw, 64px) 80px;
+}
+.adm__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+.adm__eyebrow {
+  margin: 0 0 6px;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(24, 21, 19, 0.62);
+}
+.adm h1 {
+  margin: 0;
+  font-family: var(--aur-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: 2.2rem;
+}
+.adm__actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.adm__note {
+  color: rgba(24, 21, 19, 0.6);
+}
+.adm__note.is-error,
+.adm__error {
+  color: #a44b3f;
+}
+.adm__link,
+.adm__note button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(24, 21, 19, 0.7);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.adm__btn {
+  height: 42px;
+  padding: 0 20px;
+  border-radius: 999px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--cream);
+  font: inherit;
+  font-size: 0.86rem;
+  cursor: pointer;
+}
+.adm__btn--ghost {
+  background: transparent;
+  color: var(--ink);
+}
+/* the same button look on a link (Invoice / Packing slip) */
+a.adm__btn {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+.adm__btn--danger {
+  border-color: #a44b3f;
+  background: transparent;
+  color: #a44b3f;
+}
+.adm__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* search bar above the lists */
+.adm__toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+/* a list that is reloading (new page / search) stays visible but can't be clicked */
+.adm__list.is-busy,
+.adm__table.is-busy {
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+/* filter pills */
+.adm__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.adm__tabs button {
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(24, 21, 19, 0.22);
+  background: #fff;
+  color: rgba(24, 21, 19, 0.75);
+  font: inherit;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+  cursor: pointer;
+}
+.adm__tabs button.is-active {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--cream);
+}
+
+/* cards */
+.adm__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.adm__card {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 18px 20px;
+  background: rgba(255, 255, 255, 0.5);
+}
+.adm__card.is-unread {
+  border-color: var(--copper);
+  background: #fff;
+}
+.adm__cardtop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.adm__cardtop strong {
+  display: block;
+  font-size: 1rem;
+}
+.adm__meta {
+  font-size: 0.82rem;
+  color: rgba(24, 21, 19, 0.62);
+  line-height: 1.55;
+}
+.adm__badge {
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  background: rgba(24, 21, 19, 0.08);
+}
+.adm__badge--delivered {
+  background: rgba(90, 140, 100, 0.15);
+  color: #3f6e4a;
+}
+.adm__badge--cancelled {
+  background: rgba(164, 75, 63, 0.15);
+  color: #a44b3f;
+}
+.adm__badge--shipped,
+.adm__badge--processing {
+  background: rgba(201, 138, 99, 0.18);
+  color: #8a5a3a;
+}
+.adm__items {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--line);
+  font-size: 0.88rem;
+}
+.adm__items li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 3px 0;
+}
+.adm__tracking {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 14px 0 0;
+  font-size: 0.88rem;
+  color: rgba(24, 21, 19, 0.75);
+}
+.adm__tracking button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.adm__trackform {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.adm__trackform input {
+  flex: 1 1 160px;
+  min-width: 0;
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid rgba(24, 21, 19, 0.26);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.88rem;
+}
+.adm__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.adm__foot > span {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.adm__body {
+  margin: 12px 0 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.adm__toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  padding: 12px 22px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--cream);
+  font-size: 0.88rem;
+  z-index: 60;
+}
+
+/* table (subscribers) */
+.adm__table {
+  border-top: 1px solid var(--line);
+}
+.adm__row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.92rem;
+}
+.adm__row--head {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(24, 21, 19, 0.62);
+}
+.adm__row > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

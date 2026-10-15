@@ -1,0 +1,337 @@
+/* AboutHero.css — moved out of AboutHero.js (it used to be a <style jsx global> block there). Plain CSS, same rules. */
+/* ═══════════════════════════════════════════════════════════════════
+   ROOT — same tokens as Hero.js
+   ═══════════════════════════════════════════════════════════════════ */
+.aur-ah {
+  --cream: #f6efe8;
+  --blush: #f0dcd2;
+  --copper: #c98a63;
+  --ink: #211b18;
+  --a1: #f3ddd2;
+  --a2: #dcae94;
+  --a3: #b9724b;
+  --gutter: clamp(22px, 6.6vw, 124px);
+  --ease-out: cubic-bezier(0.22, 0.8, 0.2, 1);
+  --ease-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  --mx: 0;
+  --my: 0;
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  min-height: 680px;
+  overflow: hidden;
+  background: #171310;
+  color: var(--cream);
+  font-family: var(--aur-sans), system-ui, sans-serif;
+  isolation: isolate;
+}
+.aur-ah a,
+.aur-ah button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   BACKGROUND PHOTO
+   ═══════════════════════════════════════════════════════════════════ */
+.aur-ah__media {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.aur-ah__parallax {
+  position: absolute;
+  inset: -3%;
+  transform: translate3d(calc(var(--mx) * -26px), calc(var(--my) * -16px), 0);
+  transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+  will-change: transform;
+}
+.aur-ah__kb {
+  position: absolute;
+  inset: 0;
+  transform: scale(1.1);
+}
+.aur-ah.is-ready .aur-ah__kb {
+  animation: aurAhKB 13s cubic-bezier(0.2, 0.6, 0.3, 1) forwards;
+}
+@keyframes aurAhKB {
+  from {
+    transform: scale(1.14) translate3d(1.4%, 0.6%, 0);
+  }
+  to {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ATMOSPHERE — identical layers to Hero.js
+   ═══════════════════════════════════════════════════════════════════ */
+.aur-ah__shade {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(21, 18, 15, 0.94) 0%, rgba(21, 18, 15, 0.78) 26%, rgba(21, 18, 15, 0.28) 52%, rgba(21, 18, 15, 0) 68%),
+    linear-gradient(180deg, rgba(21, 18, 15, 0.58) 0%, rgba(21, 18, 15, 0) 22%),
+    linear-gradient(0deg, rgba(21, 18, 15, 0.55) 0%, rgba(21, 18, 15, 0) 28%);
+}
+
+.aur-ah__sun {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+  background: radial-gradient(60% 70% at 78% 30%, rgba(255, 214, 160, 0.6), rgba(255, 214, 160, 0) 70%);
+  animation: aurAhSun 9s ease-in-out infinite alternate;
+}
+.aur-ah__sun--b {
+  background: radial-gradient(40% 50% at 92% 8%, rgba(255, 236, 200, 0.55), rgba(255, 236, 200, 0) 70%);
+  animation-duration: 13s;
+  animation-direction: alternate-reverse;
+}
+@keyframes aurAhSun {
+  from {
+    opacity: 0.5;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(-2.5%, 2.5%, 0) scale(1.06);
+  }
+}
+.aur-ah.is-ready .aur-dust {
+  opacity: 1;
+}
+
+.aur-ah__vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: radial-gradient(120% 100% at 60% 50%, rgba(0, 0, 0, 0) 55%, rgba(8, 6, 5, 0.5) 100%);
+}
+
+.aur-ah__grain {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  opacity: 0.085;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation: aurAhGrain 1.2s steps(6) infinite;
+}
+@keyframes aurAhGrain {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  20% {
+    transform: translate3d(-3%, 2%, 0);
+  }
+  40% {
+    transform: translate3d(2%, -3%, 0);
+  }
+  60% {
+    transform: translate3d(-2%, -1%, 0);
+  }
+  80% {
+    transform: translate3d(3%, 3%, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   COPY — same eyebrow / line-mask / accent shimmer as Hero.js
+   ═══════════════════════════════════════════════════════════════════ */
+.aur-ah__inner {
+  position: relative;
+  z-index: 10;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 640px;
+  padding: 96px 0 56px var(--gutter);
+  transform: translate3d(calc(var(--mx) * 8px), 0, 0);
+  transition: transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.aur-letter {
+  display: inline-block;
+  opacity: 0;
+}
+.aur-ah.is-ready .aur-letter {
+  animation: aurAhLetter 0.9s var(--ease-expo) both;
+}
+@keyframes aurAhLetter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 60%, 0);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    filter: blur(0);
+  }
+}
+.aur-line__in {
+  display: inline-block;
+  transform: translate3d(0, 115%, 0) rotate(3deg);
+  transform-origin: left bottom;
+}
+.aur-ah.is-ready .aur-line__in {
+  animation: aurAhRise 1.35s var(--ease-expo) both;
+}
+.aur-ah.is-ready .aur-line__in--accent {
+  animation: aurAhRise 1.35s var(--ease-expo) both, aurAhShimmer 7s ease-in-out 1.8s infinite alternate;
+}
+@keyframes aurAhRise {
+  from {
+    transform: translate3d(0, 115%, 0) rotate(3deg);
+  }
+  to {
+    transform: translate3d(0, 0, 0) rotate(0);
+  }
+}
+@keyframes aurAhShimmer {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 100% 50%;
+  }
+}
+.aur-ah.is-ready .aur-text {
+  animation: aurAhFade 1.2s ease 0.62s both;
+}
+@keyframes aurAhFade {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.aur-cta-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 42px;
+  opacity: 0;
+}
+.aur-ah.is-ready .aur-cta-row {
+  animation: aurAhFade 1.2s ease 0.85s both;
+}
+
+.aur-cta-row__label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--cream);
+}
+.aur-cta-row__line {
+  display: block;
+  width: 46px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0));
+  transform-origin: left;
+  transform: scaleX(0);
+}
+.aur-ah.is-ready .aur-cta-row__line {
+  animation: aurGrow 1.4s var(--ease-out) 1.15s both;
+}
+.aur-ah.is-ready .aur-scroll {
+  animation: aurAhFade 1.3s ease 1.4s both;
+}
+.aur-scroll__mouse {
+  position: relative;
+  width: 15px;
+  height: 34px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  transition: border-color 0.3s ease, transform 0.4s ease;
+}
+.aur-scroll:hover .aur-scroll__mouse {
+  border-color: #fff;
+  transform: translateY(3px);
+}
+@keyframes aurAhWheel {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+.aur-cursor.is-visible,
+.aur-cursor-dot.is-visible {
+  opacity: 1;
+}
+.aur-cursor.has-label .aur-cursor__label {
+  opacity: 1;
+}
+.aur-cursor-dot.is-grow::before {
+  transform: scale(0);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FOCUS + PAUSE STATES
+   ═══════════════════════════════════════════════════════════════════ */
+.aur-ah a:focus-visible,
+.aur-ah button:focus-visible {
+  outline: 2px solid var(--copper);
+  outline-offset: 4px;
+}
+.aur-ah.is-offscreen .aur-ah__sun,
+.aur-ah.is-offscreen .aur-ah__grain,
+.aur-ah.is-offscreen .aur-line__in--accent {
+  animation-play-state: paused;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════════════ */
+@media (max-width: 820px) {
+  .aur-ah {
+    min-height: 640px;
+  }
+  .aur-ah__shade {
+    background:
+      linear-gradient(180deg, rgba(21, 18, 15, 0.6) 0%, rgba(21, 18, 15, 0) 22%),
+      linear-gradient(0deg, rgba(21, 18, 15, 0.96) 0%, rgba(21, 18, 15, 0.82) 38%, rgba(21, 18, 15, 0) 72%);
+  }
+  .aur-ah__inner {
+    max-width: 100%;
+    justify-content: flex-end;
+    padding: 96px 24px 44px 24px;
+  }
+  .aur-cta-row {
+    margin-top: 30px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   REDUCED MOTION
+   ═══════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .aur-ah *,
+  .aur-ah *::before,
+  .aur-ah *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,277 @@
+/* order-success.css — moved out of page.js (it used to be a <style jsx global> block there). Plain CSS, same rules. */
+.aur-ok {
+  --cream: #f6efe8;
+  --ink: #181513;
+  --copper: #c98a63;
+  --line: rgba(24, 21, 19, 0.14);
+  --gutter: clamp(20px, 5.2vw, 96px);
+  --ease-out: cubic-bezier(0.22, 0.8, 0.2, 1);
+  min-height: 70vh;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--aur-sans), system-ui, sans-serif;
+  padding: clamp(110px, 12vw, 150px) var(--gutter) 80px;
+}
+.aur-ok__wrap {
+  max-width: 620px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.aur-ok__note {
+  text-align: center;
+  color: rgba(24, 21, 19, 0.6);
+}
+.aur-ok__head {
+  text-align: center;
+  margin-bottom: 6px;
+}
+.aur-ok__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 18px;
+  border-radius: 50%;
+  background: #e7efe6;
+  color: #4c6b45;
+}
+.aur-ok h1 {
+  margin: 0;
+  font-family: var(--aur-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+}
+.aur-ok__head p {
+  margin: 10px 0 0;
+  color: rgba(24, 21, 19, 0.65);
+  line-height: 1.6;
+  word-break: break-word;
+}
+.aur-ok__head strong {
+  color: var(--ink);
+  font-weight: 500;
+}
+.aur-ok__number {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 2px 12px;
+  padding: 18px 20px;
+  border: 1px dashed rgba(24, 21, 19, 0.3);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.5);
+}
+.aur-ok__number span {
+  grid-column: 1 / -1;
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(24, 21, 19, 0.62);
+}
+.aur-ok__number strong {
+  font-family: var(--aur-serif), Georgia, serif;
+  font-weight: 500;
+  font-size: 2rem;
+  letter-spacing: 0.06em;
+}
+.aur-ok__number button {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(24, 21, 19, 0.26);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.aur-ok__number small {
+  grid-column: 1 / -1;
+  margin-top: 6px;
+  color: rgba(24, 21, 19, 0.62);
+  font-size: 0.82rem;
+}
+.aur-ok__card {
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+}
+.aur-ok__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.aur-ok__items li {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 0;
+  font-size: 0.92rem;
+}
+.aur-ok__items li + li {
+  border-top: 1px solid var(--line);
+}
+.aur-ok__thumb {
+  width: 56px;
+  height: 70px;
+  border-radius: 4px;
+  background: #e4d9cd center / cover no-repeat;
+}
+.aur-ok__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.aur-ok__info strong {
+  font-weight: 500;
+}
+.aur-ok__info small {
+  color: rgba(24, 21, 19, 0.62);
+  font-size: 0.82rem;
+}
+.aur-ok__totals {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+.aur-ok__totals div {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  font-size: 0.9rem;
+}
+.aur-ok__totals .is-discount {
+  color: #3f5c39;
+}
+.aur-ok__totals .is-total {
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  font-weight: 500;
+}
+.aur-ok__pay {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: rgba(24, 21, 19, 0.6);
+}
+.aur-ok__ship h2 {
+  margin: 0 0 8px;
+  font-family: var(--aur-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: 1.3rem;
+}
+.aur-ok__ship p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  word-break: break-word;
+}
+.aur-ok__ship .aur-ok__next {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 0.86rem;
+  color: rgba(24, 21, 19, 0.65);
+}
+.aur-ok__actions,
+.aur-ok__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.aur-ok__actions {
+  margin-top: 8px;
+}
+.aur-ok__state {
+  max-width: 460px;
+  margin: 40px auto 0;
+  text-align: center;
+}
+.aur-ok__state h1 {
+  font-size: 1.9rem;
+}
+.aur-ok__state p {
+  margin: 0 0 10px;
+  color: rgba(24, 21, 19, 0.65);
+  line-height: 1.6;
+}
+.aur-ok__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  padding: 0 28px;
+  border-radius: 999px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--cream);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.4s var(--ease-out);
+}
+.aur-ok__btn:hover {
+  transform: translateY(-2px);
+}
+.aur-ok__link {
+  color: var(--ink);
+  font-size: 0.9rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+/* online payment states */
+.aur-ok__icon--wait,
+.aur-ok__icon--warn {
+  font-family: var(--aur-serif), Georgia, serif;
+  font-size: 1.6rem;
+  line-height: 1;
+}
+.aur-ok__icon--wait,
+.aur-ok__icon--warn {
+  background: #f3e4cc;
+  color: #7a4d14;
+}
+.aur-ok__payBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.aur-ok__btn:disabled {
+  opacity: 0.6;
+  cursor: progress;
+  transform: none;
+}
+.aur-ok__linkBtn {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.aur-ok__payError {
+  margin: 0;
+  color: #9a2c1f;
+  font-size: 0.88rem;
+  text-align: center;
+}
+@media (max-width: 480px) {
+  .aur-ok__number strong {
+    font-size: 1.6rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aur-ok__btn {
+    transition: none;
+  }
+}

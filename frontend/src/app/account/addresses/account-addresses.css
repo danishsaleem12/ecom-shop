@@ -1,0 +1,223 @@
+/* account-addresses.css — moved out of page.js (it used to be a <style jsx global> block there). Plain CSS, same rules. */
+.acc-addr {
+  --cream: #f6efe8;
+  --ink: #181513;
+  --copper: #c98a63;
+  --line: rgba(24, 21, 19, 0.16);
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 140px 24px 100px;
+  font-family: var(--aur-sans), system-ui, sans-serif;
+  color: var(--ink);
+}
+.acc-addr__eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(24, 21, 19, 0.62);
+}
+.acc-addr h1 {
+  margin: 4px 0 20px;
+  font-family: var(--aur-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: 2.2rem;
+}
+.acc-addr__tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 28px;
+}
+.acc-addr__tabs a {
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: rgba(24, 21, 19, 0.7);
+  font-size: 0.84rem;
+  text-decoration: none;
+}
+.acc-addr__tabs a.is-active {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--cream);
+}
+.acc-addr__empty {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-start;
+}
+.acc-addr__note {
+  margin: 0 0 18px;
+  color: rgba(24, 21, 19, 0.65);
+  font-size: 0.92rem;
+}
+.acc-addr__note--error {
+  color: #a44b3f;
+}
+.acc-addr__note button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.acc-addr__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.acc-addr__card {
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.6);
+}
+.acc-addr__card.is-default {
+  border-color: var(--copper);
+  background: #fff;
+}
+.acc-addr__top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.acc-addr__badge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(201, 138, 99, 0.18);
+  color: #8a5a3a;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+.acc-addr__card p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: rgba(24, 21, 19, 0.75);
+}
+.acc-addr__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 12px;
+}
+.acc-addr__actions button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.84rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.acc-addr__actions button.is-danger {
+  color: #a44b3f;
+}
+.acc-addr__actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.acc-addr__add {
+  margin-top: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+.acc-addr__add small {
+  color: rgba(24, 21, 19, 0.62);
+}
+.acc-addr__btn {
+  display: inline-flex;
+  align-items: center;
+  height: 46px;
+  padding: 0 24px;
+  border-radius: 999px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--cream);
+  font: inherit;
+  font-size: 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+.acc-addr__btn--ghost {
+  background: transparent;
+  color: var(--ink);
+}
+.acc-addr__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.acc-addr__form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 26px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+}
+.acc-addr__form h2 {
+  margin: 0 0 4px;
+  font-family: var(--aur-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: 1.5rem;
+}
+.acc-addr__form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: rgba(24, 21, 19, 0.65);
+}
+.acc-addr__form input[type='text'],
+.acc-addr__form input[type='tel'] {
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(24, 21, 19, 0.22);
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.95rem;
+}
+.acc-addr__grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.acc-addr__form label.acc-addr__check {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  font-size: 0.88rem;
+}
+.acc-addr__msg {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(164, 75, 63, 0.12);
+  color: #a44b3f;
+  font-size: 0.85rem;
+}
+.acc-addr__formbtns {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+@media (max-width: 520px) {
+  .acc-addr__grid2 {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,96 @@
+/* help.css — moved out of page.js (it used to be a <style jsx global> block there). Plain CSS, same rules. */
+        .help {
+          --cream: #f6efe8;
+          --ink: #181513;
+          --copper: #c98a63;
+          --line: rgba(24, 21, 19, 0.14);
+          max-width: 680px;
+          margin: 0 auto;
+          padding: 140px 24px 100px;
+          font-family: var(--aur-sans), system-ui, sans-serif;
+          color: var(--ink);
+        }
+        .help__eyebrow {
+          margin: 0;
+          font-size: 0.72rem;
+          letter-spacing: 0.24em;
+          text-transform: uppercase;
+          color: rgba(24, 21, 19, 0.62);
+        }
+        .help h1 {
+          margin: 4px 0 12px;
+          font-family: var(--aur-serif), Georgia, serif;
+          font-weight: 400;
+          font-size: 2.4rem;
+        }
+        .help__sub {
+          margin: 0 0 36px;
+          font-size: 0.95rem;
+          line-height: 1.6;
+          color: rgba(24, 21, 19, 0.65);
+        }
+        .help__faqs {
+          display: flex;
+          flex-direction: column;
+        }
+        .help__item {
+          border-bottom: 1px solid var(--line);
+          padding: 18px 0;
+        }
+        .help__item summary {
+          cursor: pointer;
+          list-style: none;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-family: var(--aur-serif), Georgia, serif;
+          font-size: 1.15rem;
+          font-weight: 500;
+        }
+        .help__item summary::-webkit-details-marker {
+          display: none;
+        }
+        .help__item summary::after {
+          content: '+';
+          font-family: var(--aur-sans), system-ui, sans-serif;
+          font-size: 1.4rem;
+          font-weight: 300;
+          color: rgba(24, 21, 19, 0.62);
+          transition: transform 0.3s ease;
+        }
+        .help__item[open] summary::after {
+          transform: rotate(45deg);
+        }
+        .help__item p {
+          margin: 12px 0 0;
+          font-size: 0.92rem;
+          line-height: 1.7;
+          color: rgba(24, 21, 19, 0.68);
+        }
+        .help__contact {
+          margin-top: 44px;
+          padding-top: 30px;
+          border-top: 1px solid var(--line);
+        }
+        .help__contact h2 {
+          margin: 0 0 8px;
+          font-family: var(--aur-serif), Georgia, serif;
+          font-weight: 400;
+          font-size: 1.5rem;
+        }
+        .help__contact p {
+          margin: 0 0 16px;
+          font-size: 0.92rem;
+          color: rgba(24, 21, 19, 0.65);
+        }
+        .help__contactRow {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px 24px;
+        }
+        .help__contactRow a {
+          font-size: 0.92rem;
+          color: var(--ink);
+          text-decoration: underline;
+          text-underline-offset: 3px;
+}

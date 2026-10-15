@@ -54,6 +54,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Cormorant_Garamond, Figtree } from 'next/font/google';
+import './styles/CollectionsList.css';
 
 const serif = Cormorant_Garamond({
   subsets: ['latin'],
@@ -492,85 +493,8 @@ export default function CollectionsList({ categories = CATEGORIES, collections =
 
       <SectionCursor rootRef={rootRef} enabled={enabled} />
 
+      {/* Rules whose class names are defined differently in other sections stay here: see src/components/styles/README.md */}
       <style jsx global>{`
-        /* ═══════════════════════════════════════════════════════════════════
-           ROOT
-           ═══════════════════════════════════════════════════════════════════ */
-        .col-list {
-          --cream: #efe7d8;
-          --ink: #241d16;
-          --ink-soft: rgba(36, 29, 22, 0.72);
-          --line: rgba(36, 29, 22, 0.24);
-          --copper: #a56a41;
-          --gutter: clamp(20px, 4.4vw, 76px);
-          --ease-out: cubic-bezier(0.22, 0.8, 0.2, 1);
-          --ease-expo: cubic-bezier(0.19, 1, 0.22, 1);
-          --ease-wipe: cubic-bezier(0.76, 0, 0.18, 1);
-          position: relative;
-          overflow: hidden;
-          isolation: isolate;
-          color: var(--ink);
-          font-family: var(--aur-sans), system-ui, sans-serif;
-          background: var(--cream);
-          padding: clamp(40px, 4.6vw, 68px) var(--gutter) clamp(56px, 6vw, 90px);
-        }
-        .col-list a,
-        .col-list button {
-          -webkit-tap-highlight-color: transparent;
-        }
-
-        .col-list__light {
-          position: absolute;
-          inset: -10%;
-          z-index: -1;
-          pointer-events: none;
-          background:
-            radial-gradient(ellipse 55% 45% at 12% 0%, rgba(255, 248, 232, 0.6), transparent 65%),
-            radial-gradient(ellipse 45% 40% at 100% 100%, rgba(150, 120, 84, 0.16), transparent 65%);
-          animation: colLtDrift 13s ease-in-out infinite alternate;
-        }
-        @keyframes colLtDrift {
-          from {
-            opacity: 0.7;
-            transform: translate3d(-1.5%, 0, 0);
-          }
-          to {
-            opacity: 1;
-            transform: translate3d(1.5%, 1%, 0);
-          }
-        }
-
-        .col-list__grain {
-          position: absolute;
-          inset: -10%;
-          z-index: -1;
-          pointer-events: none;
-          opacity: 0.05;
-          mix-blend-mode: multiply;
-          background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-          animation: colGrain 1.2s steps(6) infinite;
-        }
-        @keyframes colGrain {
-          0% {
-            transform: translate3d(0, 0, 0);
-          }
-          20% {
-            transform: translate3d(-3%, 2%, 0);
-          }
-          40% {
-            transform: translate3d(2%, -3%, 0);
-          }
-          60% {
-            transform: translate3d(-2%, -1%, 0);
-          }
-          80% {
-            transform: translate3d(3%, 3%, 0);
-          }
-          100% {
-            transform: translate3d(0, 0, 0);
-          }
-        }
-
         @keyframes colFade {
           from {
             opacity: 0;
@@ -580,297 +504,6 @@ export default function CollectionsList({ categories = CATEGORIES, collections =
             opacity: 1;
             transform: translate3d(0, 0, 0);
           }
-        }
-
-        /* ═══════════════════════════════════════════════════════════════════
-           INDEX (Seasonal / Occasions / Featured)
-           ═══════════════════════════════════════════════════════════════════ */
-        .col-list__index {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: clamp(28px, 4vw, 56px);
-          padding-bottom: clamp(32px, 3.6vw, 52px);
-          margin-bottom: clamp(32px, 3.6vw, 52px);
-          border-bottom: 1px solid var(--line);
-        }
-        .col-list__cat {
-          opacity: 0;
-        }
-        .col-list__index.is-in .col-list__cat {
-          animation: colFade 1s ease calc(var(--i) * 120ms + 60ms) both;
-        }
-        .col-list__cat-head {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 10px;
-        }
-        .col-list__cat-head h3 {
-          margin: 0;
-          font-family: var(--aur-serif), Georgia, serif;
-          font-size: clamp(1.1rem, 1.3vw, 1.3rem);
-          font-weight: 500;
-          color: var(--ink);
-        }
-        .col-list__cat-more {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 26px;
-          height: 26px;
-          flex-shrink: 0;
-          border-radius: 50%;
-          border: 1px solid var(--line);
-          color: var(--ink);
-          transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.4s var(--ease-out);
-        }
-        .col-list__cat-more:hover {
-          background: var(--ink);
-          color: var(--cream);
-          border-color: var(--ink);
-          transform: rotate(90deg);
-        }
-        .col-list__cat p {
-          margin: 8px 0 16px;
-          font-size: 0.82rem;
-          line-height: 1.5;
-          color: var(--ink-soft);
-        }
-        .col-list__cat ul {
-          margin: 0;
-          padding: 0;
-          list-style: none;
-        }
-        .col-list__cat li + li {
-          margin-top: 8px;
-        }
-        .col-list__cat a {
-          position: relative;
-          display: inline-block;
-          font-size: 0.86rem;
-          color: var(--ink);
-          text-decoration: none;
-          background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
-          transition: background-size 0.4s var(--ease-out), color 0.3s ease;
-        }
-        .col-list__cat a:hover {
-          color: var(--copper);
-          background-size: 100% 1px;
-        }
-
-        /* ═══════════════════════════════════════════════════════════════════
-           ROWS
-           ═══════════════════════════════════════════════════════════════════ */
-        .col-list__rows {
-          display: flex;
-          flex-direction: column;
-          gap: clamp(14px, 1.8vw, 22px);
-        }
-
-        .col-list__row {
-          display: grid;
-          grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-          gap: clamp(10px, 1.2vw, 16px);
-          scroll-margin-top: 24px;
-        }
-
-        .col-list__main {
-          position: relative;
-          display: block;
-          height: clamp(230px, 25vw, 300px);
-          overflow: hidden;
-          background: #1a140e;
-          color: var(--cream);
-          text-decoration: none;
-          clip-path: inset(0 0 0 100%);
-        }
-        .col-list__row.is-in .col-list__main {
-          animation: colWipe 1.5s var(--ease-wipe) both;
-        }
-        @keyframes colWipe {
-          from {
-            clip-path: inset(0 0 0 100%);
-          }
-          to {
-            clip-path: inset(0 0 0 0);
-          }
-        }
-
-        .col-list__par {
-          position: absolute;
-          inset: -6%;
-        }
-        .col-list__kb {
-          position: absolute;
-          inset: 0;
-          transform: scale(1.16);
-        }
-        .col-list__row.is-in .col-list__kb {
-          animation: colKB 2.6s var(--ease-out) 0.15s both;
-        }
-        @keyframes colKB {
-          from {
-            transform: scale(1.16) translate3d(1.4%, 0.8%, 0);
-          }
-          to {
-            transform: scale(1) translate3d(0, 0, 0);
-          }
-        }
-        .col-list__kb img,
-        .col-list__main .col-list__fallback {
-          display: block;
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          transform: scale(1);
-          transition: transform 1.3s var(--ease-out);
-          -webkit-user-drag: none;
-        }
-        .col-list__main .col-list__fallback {
-          background:
-            linear-gradient(120deg, transparent 32%, rgba(255, 226, 180, 0.13) 46%, transparent 60%),
-            radial-gradient(ellipse 80% 55% at 28% 24%, var(--t1, #b89b76), transparent 72%),
-            linear-gradient(165deg, var(--t2, #241c15), #14100c);
-        }
-        .col-list__main:hover .col-list__kb img,
-        .col-list__main:hover .col-list__fallback {
-          transform: scale(1.06);
-        }
-
-        .col-list__shade {
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          background: linear-gradient(90deg, rgba(14, 11, 8, 0.78) 0%, rgba(14, 11, 8, 0.5) 38%, rgba(14, 11, 8, 0.06) 68%);
-        }
-
-        .col-list__copy {
-          position: absolute;
-          z-index: 2;
-          left: clamp(20px, 2.6vw, 40px);
-          top: 50%;
-          transform: translateY(-50%);
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          max-width: min(70%, 380px);
-        }
-        .col-list__label {
-          font-size: 0.64rem;
-          font-weight: 500;
-          letter-spacing: 0.3em;
-          text-transform: uppercase;
-          color: rgba(246, 239, 232, 0.75);
-          opacity: 0;
-        }
-        .col-list__row.is-in .col-list__label {
-          animation: colFade 0.9s ease 0.55s both;
-        }
-        .col-list__title {
-          margin-top: 10px;
-          font-family: var(--aur-serif), Georgia, serif;
-          font-weight: 400;
-          font-size: clamp(1.7rem, 2.6vw, 2.5rem);
-          line-height: 1.05;
-          color: #fbf4ea;
-          opacity: 0;
-        }
-        .col-list__row.is-in .col-list__title {
-          animation: colFade 1s ease 0.65s both;
-        }
-        .col-list__desc {
-          margin-top: 12px;
-          font-size: 0.82rem;
-          font-weight: 300;
-          line-height: 1.55;
-          color: rgba(246, 239, 232, 0.85);
-          opacity: 0;
-        }
-        .col-list__row.is-in .col-list__desc {
-          animation: colFade 1s ease 0.78s both;
-        }
-        .col-list__cta {
-          display: inline-flex;
-          align-items: center;
-          gap: 12px;
-          margin-top: 20px;
-          font-size: 0.82rem;
-          font-weight: 500;
-          color: #fbf4ea;
-          opacity: 0;
-        }
-        .col-list__row.is-in .col-list__cta {
-          animation: colFade 1s ease 0.92s both;
-        }
-        .col-list__cta-circle {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 28px;
-          height: 28px;
-          border-radius: 50%;
-          border: 1px solid rgba(246, 239, 232, 0.6);
-          color: #fbf4ea;
-          transition: background 0.4s var(--ease-out), color 0.4s ease, border-color 0.4s ease, transform 0.5s var(--ease-out);
-        }
-        .col-list__main:hover .col-list__cta-circle {
-          background: #fbf4ea;
-          color: var(--ink);
-          border-color: #fbf4ea;
-          transform: rotate(45deg);
-        }
-
-        /* thumbnails */
-        .col-list__thumbs {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: clamp(8px, 1vw, 12px);
-        }
-        .col-list__thumb {
-          position: relative;
-          overflow: hidden;
-          height: clamp(230px, 25vw, 300px);
-          background: #1a140e;
-          clip-path: inset(0 0 0 100%);
-        }
-        .col-list__row.is-in .col-list__thumb {
-          animation: colWipe 1.3s var(--ease-wipe) calc(var(--i) * 130ms + 0.25s) both;
-        }
-        .col-list__thumb-par {
-          position: absolute;
-          inset: -6%;
-        }
-        .col-list__thumb-kb {
-          position: absolute;
-          inset: 0;
-          transform: scale(1.2);
-        }
-        .col-list__row.is-in .col-list__thumb-kb {
-          animation: colKB 2.2s var(--ease-out) calc(var(--i) * 130ms + 0.35s) both;
-        }
-        .col-list__thumb-kb img,
-        .col-list__thumb .col-list__fallback {
-          display: block;
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          transform: scale(1);
-          transition: transform 1.1s var(--ease-out);
-          -webkit-user-drag: none;
-        }
-        .col-list__thumb .col-list__fallback {
-          background:
-            linear-gradient(120deg, transparent 32%, rgba(255, 226, 180, 0.13) 46%, transparent 60%),
-            radial-gradient(ellipse 80% 55% at 30% 22%, var(--t1, #b89b76), transparent 72%),
-            linear-gradient(165deg, var(--t2, #241c15), #14100c);
-        }
-        .col-list__thumbs:hover .col-list__thumb:not(:hover) .col-list__thumb-kb img,
-        .col-list__thumbs:hover .col-list__thumb:not(:hover) .col-list__fallback {
-          filter: brightness(0.82);
-        }
-        .col-list__thumb:hover .col-list__thumb-kb img,
-        .col-list__thumb:hover .col-list__fallback {
-          transform: scale(1.08);
         }
 
         /* ═══════════════════════════════════════════════════════════════════
@@ -885,10 +518,6 @@ export default function CollectionsList({ categories = CATEGORIES, collections =
           pointer-events: none;
           opacity: 0;
           transition: opacity 0.35s ease;
-        }
-        .col-cursor.is-visible,
-        .col-cursor-dot.is-visible {
-          opacity: 1;
         }
         .col-cursor::before {
           content: '';
@@ -930,9 +559,6 @@ export default function CollectionsList({ categories = CATEGORIES, collections =
           opacity: 0;
           transition: opacity 0.3s ease;
         }
-        .col-cursor.has-label .col-cursor__label {
-          opacity: 1;
-        }
         .col-cursor-dot::before {
           content: '';
           position: absolute;
@@ -945,67 +571,11 @@ export default function CollectionsList({ categories = CATEGORIES, collections =
           background: var(--ink);
           transition: transform 0.3s ease;
         }
-        .col-cursor-dot.is-grow::before {
-          transform: scale(0);
-        }
-
-        /* ═══════════════════════════════════════════════════════════════════
-           FOCUS
-           ═══════════════════════════════════════════════════════════════════ */
-        .col-list a:focus-visible,
-        .col-list button:focus-visible {
-          outline: 2px solid var(--copper);
-          outline-offset: 4px;
-        }
-
-        /* ═══════════════════════════════════════════════════════════════════
-           RESPONSIVE
-           ═══════════════════════════════════════════════════════════════════ */
-        @media (max-width: 980px) {
-          .col-list__index {
-            grid-template-columns: 1fr;
-            gap: 28px;
-          }
-        }
-
-        @media (max-width: 860px) {
-          .col-list__row {
-            grid-template-columns: 1fr;
-          }
-          .col-list__thumbs {
-            height: clamp(160px, 40vw, 220px);
-          }
-          .col-list__thumb {
-            height: 100%;
-          }
-        }
-
-        @media (max-width: 520px) {
-          .col-list__copy {
-            max-width: 84%;
-          }
-          .col-list__thumbs {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-          }
-        }
 
         @media (pointer: coarse) {
           .col-cursor,
           .col-cursor-dot {
             display: none;
-          }
-        }
-
-        /* ═══════════════════════════════════════════════════════════════════
-           REDUCED MOTION
-           ═══════════════════════════════════════════════════════════════════ */
-        @media (prefers-reduced-motion: reduce) {
-          .col-list *,
-          .col-list *::before,
-          .col-list *::after {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.01ms !important;
           }
         }
       `}</style>

@@ -1,0 +1,63 @@
+/* admin-customers.css — moved out of page.js (it used to be a <style jsx global> block there). Plain CSS, same rules. */
+.cu__form {
+  display: grid;
+  gap: 16px;
+  max-width: 760px;
+  margin-bottom: 32px;
+  padding: 22px;
+  border: 1px solid rgba(24, 21, 19, 0.14);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.5);
+}
+.cu__form h2 {
+  margin: 0;
+  font-family: var(--aur-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: 1.4rem;
+}
+.cu__form .adm__btn {
+  justify-self: start;
+}
+.cu__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.cu__grid label {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.cu__grid span {
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(24, 21, 19, 0.7);
+}
+.cu__grid input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(24, 21, 19, 0.26);
+  border-radius: 4px;
+  background: #fff;
+  font: inherit;
+  font-size: 0.92rem;
+}
+.cu__grid input:focus-visible {
+  outline: 2px solid #c98a63;
+  outline-offset: 2px;
+}
+.cu__orders {
+  margin: 10px 0 4px;
+  padding: 10px 14px;
+  border-radius: 4px;
+  background: rgba(24, 21, 19, 0.04);
+}
+.cu__orders p {
+  margin: 4px 0;
+}
+@media (max-width: 760px) {
+  .cu__grid {
+    grid-template-columns: 1fr;
+  }
+}

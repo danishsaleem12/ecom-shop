@@ -16,7 +16,9 @@ import { Cormorant_Garamond, Figtree } from 'next/font/google';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useCart } from '@/context/CartContext';
+import { usePolicy } from '@/context/PolicyContext';
 import { imageSrc } from '@/lib/imageUrl';
+import './cart.css';
 
 const serif = Cormorant_Garamond({
   subsets: ['latin'],
@@ -31,8 +33,6 @@ const sans = Figtree({
   variable: '--aur-sans',
   display: 'swap',
 });
-
-const FREE_SHIPPING_THRESHOLD = 15000;
 
 const formatPKR = (n) => {
   const value = Number(n);
@@ -56,6 +56,7 @@ const ArrowRight = () => (
 );
 
 export default function CartPage() {
+  const { freeShippingThreshold: FREE_SHIPPING_THRESHOLD } = usePolicy(); // from the backend (GET /api/config)
   const { items, count, subtotal, updateQty, removeItem, hydrated } = useCart();
 
   const remaining = Math.max(FREE_SHIPPING_THRESHOLD - subtotal, 0);
@@ -92,7 +93,7 @@ export default function CartPage() {
           <div className="aur-bag__layout">
             <ul className="aur-bag__list">
               {items.map((it) => (
-                <li key={it.id}>
+                <li key={it.key || it.id}>
                   <Link href={`/shop/${it.id}`} className="aur-bag__thumb">
                     {it.image ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -104,24 +105,25 @@ export default function CartPage() {
 
                   <div className="aur-bag__info">
                     <Link href={`/shop/${it.id}`}>{it.name}</Link>
+                    {(it.size || it.color) && <span className="aur-bag__unit">{[it.size, it.color].filter(Boolean).join(' / ')}</span>}
                     <span className="aur-bag__unit">{formatPKR(it.price)} each</span>
 
                     <div className="aur-bag__row">
                       <div className="aur-bag__step" role="group" aria-label={`Quantity for ${it.name}`}>
-                        <button type="button" onClick={() => updateQty(it.id, Math.max(1, it.qty - 1))} aria-label="Decrease quantity">
+                        <button type="button" onClick={() => updateQty(it.key || it.id, Math.max(1, it.qty - 1))} aria-label="Decrease quantity">
                           <MinusIcon />
                         </button>
                         <span>{it.qty}</span>
                         <button
                           type="button"
-                          onClick={() => updateQty(it.id, it.stock > 0 ? Math.min(it.qty + 1, it.stock) : it.qty + 1)}
+                          onClick={() => updateQty(it.key || it.id, it.stock > 0 ? Math.min(it.qty + 1, it.stock) : it.qty + 1)}
                           aria-label="Increase quantity"
                           disabled={it.stock > 0 && it.qty >= it.stock}
                         >
                           <PlusIcon />
                         </button>
                       </div>
-                      <button type="button" className="aur-bag__remove" onClick={() => removeItem(it.id)}>
+                      <button type="button" className="aur-bag__remove" onClick={() => removeItem(it.key || it.id)}>
                         Remove
                       </button>
                     </div>
@@ -174,69 +176,8 @@ export default function CartPage() {
 
       <Footer />
 
+      {/* Rules whose class names are defined differently in other sections stay here: see src/components/styles/README.md */}
       <style jsx global>{`
-        .aur-bag {
-          --cream: #f6efe8;
-          --ink: #181513;
-          --copper: #c98a63;
-          --line: rgba(24, 21, 19, 0.14);
-          --gutter: clamp(20px, 5.2vw, 96px);
-          --ease-out: cubic-bezier(0.22, 0.8, 0.2, 1);
-          min-height: 70vh;
-          background: var(--cream);
-          color: var(--ink);
-          font-family: var(--aur-sans), system-ui, sans-serif;
-          padding: clamp(110px, 12vw, 150px) var(--gutter) 80px;
-        }
-
-        .aur-bag__head {
-          display: flex;
-          align-items: baseline;
-          justify-content: space-between;
-          gap: 16px;
-          margin-bottom: clamp(28px, 4vw, 44px);
-        }
-        .aur-bag__head h1 {
-          margin: 0;
-          font-family: var(--aur-serif), Georgia, serif;
-          font-weight: 400;
-          font-size: clamp(1.9rem, 3vw, 2.6rem);
-        }
-        .aur-bag__head h1 span {
-          font-size: 1.1rem;
-          color: rgba(24, 21, 19, 0.5);
-        }
-        .aur-bag__continue {
-          font-size: 0.88rem;
-          color: rgba(24, 21, 19, 0.65);
-          text-decoration: underline;
-          text-underline-offset: 3px;
-        }
-        .aur-bag__continue:hover {
-          color: var(--ink);
-        }
-
-        /* ── empty state ────────────────────────────────────────────── */
-        .aur-bag__empty {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 8px;
-          padding: 90px 12px 40px;
-          text-align: center;
-          color: rgba(24, 21, 19, 0.65);
-        }
-        .aur-bag__empty h2 {
-          margin: 16px 0 0;
-          font-family: var(--aur-serif), Georgia, serif;
-          font-weight: 400;
-          font-size: 1.9rem;
-          color: var(--ink);
-        }
-        .aur-bag__empty p {
-          margin: 0 0 22px;
-        }
-
         /* ── shared button ──────────────────────────────────────────── */
         .aur-btn {
           display: inline-flex;
@@ -255,217 +196,6 @@ export default function CartPage() {
           text-decoration: none;
           cursor: pointer;
           transition: transform 0.4s var(--ease-out), background 0.3s ease;
-        }
-        .aur-btn:hover {
-          transform: translateY(-2px);
-        }
-        .aur-btn--full {
-          width: 100%;
-        }
-
-        /* ── layout ─────────────────────────────────────────────────── */
-        .aur-bag__layout {
-          display: grid;
-          grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
-          gap: clamp(28px, 4vw, 56px);
-          align-items: start;
-        }
-
-        .aur-bag__list {
-          margin: 0;
-          padding: 0;
-          list-style: none;
-          border-top: 1px solid var(--line);
-        }
-        .aur-bag__list li {
-          display: grid;
-          grid-template-columns: 96px minmax(0, 1fr) auto;
-          gap: 18px;
-          padding: 22px 0;
-          border-bottom: 1px solid var(--line);
-        }
-        .aur-bag__thumb {
-          display: block;
-          width: 96px;
-          height: 118px;
-          border-radius: 4px;
-          overflow: hidden;
-          background: #e4d9cd;
-        }
-        .aur-bag__thumb img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-        .aur-bag__placeholder {
-          display: block;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(135deg, #ece1d5, #d9c8b5);
-        }
-        .aur-bag__info {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          min-width: 0;
-        }
-        .aur-bag__info > a {
-          font-family: var(--aur-serif), Georgia, serif;
-          font-size: 1.35rem;
-          line-height: 1.15;
-          color: var(--ink);
-          text-decoration: none;
-        }
-        .aur-bag__info > a:hover {
-          color: var(--copper);
-        }
-        .aur-bag__unit {
-          font-size: 0.82rem;
-          color: rgba(24, 21, 19, 0.55);
-        }
-        .aur-bag__row {
-          display: flex;
-          align-items: center;
-          gap: 18px;
-          margin-top: auto;
-          padding-top: 10px;
-        }
-        .aur-bag__step {
-          display: inline-flex;
-          align-items: center;
-          border-radius: 999px;
-          border: 1px solid rgba(24, 21, 19, 0.24);
-        }
-        .aur-bag__step button {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 32px;
-          height: 32px;
-          padding: 0;
-          border: 0;
-          border-radius: 50%;
-          background: transparent;
-          color: var(--ink);
-          cursor: pointer;
-        }
-        .aur-bag__step button:disabled {
-          opacity: 0.35;
-          cursor: not-allowed;
-        }
-        .aur-bag__step span {
-          min-width: 26px;
-          text-align: center;
-          font-size: 0.9rem;
-        }
-        .aur-bag__remove {
-          padding: 0;
-          border: 0;
-          background: transparent;
-          color: rgba(24, 21, 19, 0.55);
-          font: inherit;
-          font-size: 0.82rem;
-          text-decoration: underline;
-          text-underline-offset: 3px;
-          cursor: pointer;
-        }
-        .aur-bag__remove:hover {
-          color: var(--ink);
-        }
-        .aur-bag__price {
-          font-size: 0.95rem;
-          white-space: nowrap;
-        }
-
-        /* ── summary ────────────────────────────────────────────────── */
-        .aur-bag__summary {
-          position: sticky;
-          top: 100px;
-          padding: 26px;
-          border: 1px solid var(--line);
-          border-radius: 6px;
-          background: #fff;
-        }
-        .aur-bag__summary h2 {
-          margin: 0 0 18px;
-          font-family: var(--aur-serif), Georgia, serif;
-          font-weight: 400;
-          font-size: 1.3rem;
-        }
-        .aur-bag__ship {
-          margin-bottom: 18px;
-        }
-        .aur-bag__ship p {
-          margin: 0 0 10px;
-          font-size: 0.85rem;
-          color: rgba(24, 21, 19, 0.75);
-        }
-        .aur-bag__ship strong {
-          color: var(--copper);
-        }
-        .aur-bag__bar {
-          height: 4px;
-          overflow: hidden;
-          border-radius: 4px;
-          background: var(--line);
-        }
-        .aur-bag__bar i {
-          display: block;
-          height: 100%;
-          border-radius: inherit;
-          background: var(--copper);
-          transform-origin: left;
-          transition: transform 0.8s var(--ease-out);
-        }
-        .aur-bag__bar i.is-full {
-          background: #6f8f74;
-        }
-        .aur-bag__totals {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          padding: 16px 0;
-          margin-bottom: 18px;
-          border-top: 1px solid var(--line);
-          border-bottom: 1px solid var(--line);
-        }
-        .aur-bag__totals div {
-          display: flex;
-          justify-content: space-between;
-          font-size: 0.9rem;
-        }
-        .aur-bag__note {
-          margin: 12px 0 0;
-          font-size: 0.76rem;
-          text-align: center;
-          color: rgba(24, 21, 19, 0.5);
-        }
-
-        @media (max-width: 860px) {
-          .aur-bag__layout {
-            grid-template-columns: 1fr;
-          }
-          .aur-bag__summary {
-            position: static;
-          }
-        }
-        @media (max-width: 520px) {
-          .aur-bag__list li {
-            grid-template-columns: 76px minmax(0, 1fr);
-          }
-          .aur-bag__price {
-            grid-column: 2;
-          }
-          .aur-bag__thumb {
-            width: 76px;
-            height: 96px;
-          }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .aur-bag * {
-            transition-duration: 0.01ms !important;
-          }
         }
       `}</style>
     </>

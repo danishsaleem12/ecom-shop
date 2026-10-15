@@ -8,17 +8,23 @@ import NewArrivalsSection from "@/components/Newarrivalssection";
 import NewsletterSection from "@/components/Newslettersection";
 import Footer from "@/components/Footer";
 
+export const metadata = {
+  alternates: { canonical: '/' },
+};
+
 export default function Home() {
   return (
     <>
       <Navbar />
-      <Hero />
-      <ProductSection />
-      <CollectionsSection />
-      <StorySection />
-      <FeaturedProductSection />
-      <NewArrivalsSection />
-      <NewsletterSection />
+      <main>
+        <Hero />
+        <ProductSection />
+        <CollectionsSection />
+        <StorySection />
+        <FeaturedProductSection />
+        <NewArrivalsSection />
+        <NewsletterSection />
+      </main>
       <Footer />
     </>
   );

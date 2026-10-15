@@ -1,0 +1,49 @@
+/* AdminNav.css — moved out of AdminNav.js (it used to be a <style jsx global> block there). Plain CSS, same rules. */
+.adm-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 36px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(24, 21, 19, 0.14);
+}
+.adm-nav__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.adm-nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 0.86rem;
+  color: rgba(24, 21, 19, 0.65);
+  text-decoration: none;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+.adm-nav a:hover {
+  color: #181513;
+}
+.adm-nav a.is-active {
+  background: #181513;
+  color: #f6efe8;
+}
+.adm-nav a b {
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: #c98a63;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-align: center;
+}
+.adm-nav .adm-nav__store {
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

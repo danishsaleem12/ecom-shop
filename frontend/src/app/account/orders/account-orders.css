@@ -1,0 +1,354 @@
+/* account-orders.css — moved out of page.js (it used to be a <style jsx global> block there). Plain CSS, same rules. */
+.acc-orders {
+  --cream: #f6efe8;
+  --ink: #181513;
+  --copper: #c98a63;
+  --line: rgba(24, 21, 19, 0.14);
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 140px 24px 100px;
+  font-family: var(--aur-sans), system-ui, sans-serif;
+  color: var(--ink);
+}
+.acc-orders__eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(24, 21, 19, 0.62);
+}
+.acc-orders__head h1 {
+  margin: 4px 0 40px;
+  font-family: var(--aur-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: 2.4rem;
+}
+.acc-orders__status {
+  font-size: 0.95rem;
+  color: rgba(24, 21, 19, 0.6);
+}
+.acc-orders__status--error {
+  color: #a44b3f;
+}
+.acc-orders__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 40px 0;
+}
+.acc-orders__cta {
+  display: inline-flex;
+  height: 46px;
+  padding: 0 24px;
+  align-items: center;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--cream);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+.acc-orders__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.acc-orders__card {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 20px 22px;
+}
+.acc-orders__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.acc-orders__top div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.acc-orders__top span {
+  font-size: 0.82rem;
+  color: rgba(24, 21, 19, 0.62);
+}
+.acc-orders__badge {
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  background: rgba(24, 21, 19, 0.08);
+}
+.acc-orders__badge--delivered {
+  background: rgba(90, 140, 100, 0.15);
+  color: #3f6e4a;
+}
+.acc-orders__badge--cancelled {
+  background: rgba(164, 75, 63, 0.15);
+  color: #a44b3f;
+}
+.acc-orders__badge--shipped,
+.acc-orders__badge--processing {
+  background: rgba(201, 138, 99, 0.18);
+  color: #8a5a3a;
+}
+.acc-orders__items {
+  list-style: none;
+  margin: 0;
+  padding: 14px 0;
+}
+.acc-orders__items li {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 0;
+}
+.acc-orders__thumb {
+  width: 48px;
+  height: 60px;
+  border-radius: 8px;
+  background-color: rgba(24, 21, 19, 0.06);
+  background-size: cover;
+  background-position: center;
+}
+.acc-orders__itemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.acc-orders__itemInfo small {
+  color: rgba(24, 21, 19, 0.62);
+  font-size: 0.8rem;
+}
+.acc-orders__tracking {
+  margin: 14px 0 0;
+  padding: 10px 14px;
+  border-radius: 6px;
+  background: rgba(201, 138, 99, 0.12);
+  font-size: 0.88rem;
+  color: rgba(24, 21, 19, 0.8);
+  word-break: break-word;
+}
+.acc-orders__tracking strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+.acc-orders__foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 0.9rem;
+}
+.acc-orders__foot strong {
+  font-family: var(--aur-serif), Georgia, serif;
+  font-size: 1.4rem;
+  font-weight: 400;
+}
+.acc-orders__cancel {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+.acc-orders__cancel button {
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 999px;
+  border: 1px solid #a44b3f;
+  background: transparent;
+  color: #a44b3f;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+.acc-orders__cancel button:hover:not(:disabled) {
+  background: #a44b3f;
+  color: var(--cream);
+}
+.acc-orders__cancel button:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+.acc-orders__cancel-error {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: #a44b3f;
+  text-align: right;
+}
+
+/* returns */
+.acc-orders__returnOffer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.acc-orders__returnOffer small {
+  color: rgba(24, 21, 19, 0.6);
+  font-size: 0.82rem;
+}
+.acc-orders__returnOffer button,
+.acc-orders__returnActions button {
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 999px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--cream);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.acc-orders__returnActions button.is-ghost {
+  background: transparent;
+  color: var(--ink);
+}
+.acc-orders__returnActions button:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+.acc-orders__returnForm {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 0.9rem;
+}
+.acc-orders__returnForm fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.acc-orders__returnForm legend {
+  margin-bottom: 8px;
+  padding: 0;
+  font-weight: 600;
+}
+.acc-orders__check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.acc-orders__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 600;
+}
+.acc-orders__field select,
+.acc-orders__field textarea {
+  padding: 10px 12px;
+  border: 1px solid rgba(24, 21, 19, 0.25);
+  border-radius: 10px;
+  background: #fff;
+  font: inherit;
+  font-weight: 400;
+  color: var(--ink);
+}
+.acc-orders__returnActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.acc-orders__return {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 0.9rem;
+}
+.acc-orders__returnHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 6px;
+}
+.acc-orders__returnBadge {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(201, 138, 99, 0.18);
+  color: #8a5a3a;
+}
+.acc-orders__returnBadge--refunded {
+  background: rgba(90, 140, 100, 0.15);
+  color: #3f6e4a;
+}
+.acc-orders__returnBadge--rejected {
+  background: rgba(164, 75, 63, 0.15);
+  color: #a44b3f;
+}
+.acc-orders__returnMeta {
+  margin: 0;
+  color: rgba(24, 21, 19, 0.65);
+  font-size: 0.85rem;
+}
+.acc-orders__returnNote {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(24, 21, 19, 0.05);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+/* payment line (cash on delivery / card status) */
+.acc-orders__pay {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+  color: rgba(24, 21, 19, 0.62);
+}
+.acc-orders__payBadge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(24, 21, 19, 0.08);
+  color: #181513;
+}
+.acc-orders__payBadge--ok {
+  background: rgba(90, 140, 100, 0.15);
+  color: #3f6e4a;
+}
+.acc-orders__payBadge--warn {
+  background: rgba(201, 138, 99, 0.18);
+  color: #7a4d14;
+}
+.acc-orders__payBadge--bad {
+  background: rgba(164, 75, 63, 0.15);
+  color: #a44b3f;
+}
+.acc-orders__cancel .acc-orders__payBtn {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--cream);
+}
+.acc-orders__cancel .acc-orders__payBtn:hover:not(:disabled) {
+  background: var(--copper);
+  border-color: var(--copper);
+  color: var(--ink);
+}

@@ -24,8 +24,10 @@ export default function CollectionsPage() {
   return (
     <>
       <Navbar cartCount={cartCount} wishlistCount={wishlistCount} />
-      <CollectionsHero />
-      <CollectionsList />
+      <main>
+        <CollectionsHero />
+        <CollectionsList />
+      </main>
       <Footer />
     </>
   );

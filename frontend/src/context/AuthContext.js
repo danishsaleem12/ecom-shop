@@ -62,6 +62,20 @@ export function AuthProvider({ children }) {
     return data.user;
   }, []);
 
+  // Admin accounts sign in here (customers use login above); the backend enforces which is which.
+  const adminLogin = useCallback(async (email, password) => {
+    const res = await fetch(`${API_URL}/api/auth/admin/login`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await parseJson(res);
+    if (!res.ok) throw new Error(data.message || 'Failed to sign in');
+    setUser(data.user);
+    return data.user;
+  }, []);
+
   const register = useCallback(async (name, email, password) => {
     const res = await fetch(`${API_URL}/api/auth/register`, {
       method: 'POST',
@@ -89,11 +103,12 @@ export function AuthProvider({ children }) {
       loading,
       isAdmin: user?.role === 'admin',
       login,
+      adminLogin,
       register,
       logout,
       refresh,
     }),
-    [user, loading, login, register, logout, refresh]
+    [user, loading, login, adminLogin, register, logout, refresh]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

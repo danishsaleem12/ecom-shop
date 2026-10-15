@@ -1,0 +1,85 @@
+/* RelatedProducts.css — moved out of RelatedProducts.js (it used to be a <style jsx global> block there). Plain CSS, same rules. */
+.aur-rel {
+  margin-top: clamp(48px, 7vw, 96px);
+  padding-top: clamp(32px, 4vw, 56px);
+  border-top: 1px solid var(--line, rgba(24, 21, 19, 0.14));
+}
+.aur-rel h2 {
+  margin: 0 0 28px;
+  font-family: var(--aur-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(1.7rem, 2.6vw, 2.2rem);
+}
+.aur-rel__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(16px, 2.4vw, 32px);
+}
+.aur-rel__card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  color: var(--ink, #181513);
+  text-decoration: none;
+}
+.aur-rel__img {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  margin-bottom: 6px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #e4d9cd;
+}
+.aur-rel__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+.aur-rel__card:hover .aur-rel__img img {
+  transform: scale(1.04);
+}
+.aur-rel__card:focus-visible {
+  outline: 2px solid var(--copper, #c98a63);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+.aur-rel__badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(24, 21, 19, 0.85);
+  color: var(--cream, #f6efe8);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.aur-rel__name {
+  font-family: var(--aur-serif), Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 500;
+  line-height: 1.3;
+}
+.aur-rel__price {
+  font-size: 0.92rem;
+  color: rgba(24, 21, 19, 0.65);
+}
+@media (max-width: 780px) {
+  .aur-rel__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aur-rel__img img {
+    transition: none;
+  }
+}

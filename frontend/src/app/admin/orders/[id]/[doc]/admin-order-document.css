@@ -1,0 +1,265 @@
+/* admin-order-document.css — moved out of page.js (it used to be a <style jsx global> block there). Plain CSS, same rules. */
+.doc-page {
+  --ink: #181513;
+  --line: rgba(24, 21, 19, 0.16);
+  min-height: 100vh;
+  padding: 28px 20px 80px;
+  background: #f6efe8;
+  color: var(--ink);
+  font-family: var(--aur-sans), system-ui, sans-serif;
+}
+.doc-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  max-width: 820px;
+  margin: 0 auto 20px;
+}
+.doc-bar a {
+  color: rgba(24, 21, 19, 0.7);
+  font-size: 0.88rem;
+  text-underline-offset: 3px;
+}
+.doc-bar__right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.doc-bar button {
+  height: 42px;
+  padding: 0 22px;
+  border-radius: 999px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: #f6efe8;
+  font: inherit;
+  font-size: 0.86rem;
+  cursor: pointer;
+}
+.doc-bar button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.doc-note {
+  max-width: 820px;
+  margin: 40px auto;
+  color: rgba(24, 21, 19, 0.65);
+}
+.doc-note--error {
+  color: #a44b3f;
+}
+.doc-sheet {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 48px 52px 40px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+.doc-sheet p {
+  margin: 0;
+}
+.doc-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid var(--ink);
+}
+.doc-brand {
+  font-family: var(--aur-serif), Georgia, serif;
+  font-size: 2.1rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+.doc-small {
+  margin-top: 6px !important;
+  font-size: 0.82rem;
+  color: rgba(24, 21, 19, 0.65);
+}
+.doc-title {
+  text-align: right;
+}
+.doc-title h1 {
+  margin: 0 0 8px;
+  font-family: var(--aur-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: 1.9rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.doc-title dl {
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: end;
+  gap: 2px 14px;
+  margin: 0;
+  font-size: 0.84rem;
+}
+.doc-title dt {
+  color: rgba(24, 21, 19, 0.62);
+}
+.doc-title dd {
+  margin: 0;
+  font-weight: 600;
+}
+.doc-cap {
+  text-transform: capitalize;
+}
+.doc-parties {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin: 26px 0;
+}
+.doc-parties h2 {
+  margin: 0 0 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(24, 21, 19, 0.62);
+}
+.doc-parties p + p {
+  margin-top: 6px;
+}
+.doc-strong {
+  font-weight: 600;
+}
+.doc-cod {
+  font-weight: 600;
+}
+.doc-notes {
+  margin: 0 0 22px !important;
+  padding: 10px 14px;
+  border: 1px dashed var(--ink);
+  border-radius: 6px;
+}
+.doc-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.doc-table th {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--ink);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-align: left;
+  color: rgba(24, 21, 19, 0.6);
+}
+.doc-table td {
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.doc-table tr {
+  break-inside: avoid;
+}
+.doc-table .doc-num {
+  text-align: right;
+  white-space: nowrap;
+}
+.doc-table .doc-check {
+  width: 34px;
+}
+.doc-variant {
+  display: block;
+  font-size: 0.82rem;
+  color: rgba(24, 21, 19, 0.6);
+}
+.doc-box {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--ink);
+  border-radius: 3px;
+}
+.doc-totals {
+  width: min(100%, 300px);
+  margin: 18px 0 0 auto;
+  break-inside: avoid;
+}
+.doc-totals > div {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 8px;
+}
+.doc-totals__grand {
+  margin-top: 6px;
+  padding-top: 10px !important;
+  border-top: 2px solid var(--ink);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.doc-sign {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-top: 56px;
+  break-inside: avoid;
+}
+.doc-sign span {
+  padding-top: 6px;
+  border-top: 1px solid var(--ink);
+  font-size: 0.78rem;
+  color: rgba(24, 21, 19, 0.6);
+}
+.doc-foot {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  font-size: 0.8rem;
+  text-align: center;
+  color: rgba(24, 21, 19, 0.6);
+}
+
+@media (max-width: 600px) {
+  .doc-sheet {
+    padding: 28px 20px;
+  }
+  .doc-head,
+  .doc-parties {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+  .doc-title {
+    text-align: left;
+  }
+  .doc-title dl {
+    justify-content: start;
+  }
+}
+
+@page {
+  size: A4;
+  margin: 14mm;
+}
+@media print {
+  .doc-page {
+    padding: 0;
+    background: #fff;
+  }
+  .doc-bar,
+  .doc-note {
+    display: none;
+  }
+  .doc-sheet {
+    max-width: none;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+  }
+  .doc-page,
+  .doc-sheet {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

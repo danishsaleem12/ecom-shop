@@ -20,22 +20,25 @@ import AureliaWoman from '@/components/AureliaWoman';
 import Footer from '@/components/Footer';
 
 export const metadata = {
-    title: 'About Aurelia',
+  alternates: { canonical: '/about' },
+    title: 'About',
     description:
         'More than a fashion brand — Aurelia is a feeling, a vision, and a tribute to the timeless beauty of everyday life.',
 };
 
 export default function AboutPage() {
     return (
-        <main>
+        <>
             <Navbar />
-            <AboutHero />
-            <OurStory />
-            <OurPhilosophy />
-            <CraftMaterials />
-            <DesignProcess />
-            <AureliaWoman />
+            <main>
+                <AboutHero />
+                <OurStory />
+                <OurPhilosophy />
+                <CraftMaterials />
+                <DesignProcess />
+                <AureliaWoman />
+            </main>
             <Footer />
-        </main>
+        </>
     );
 }

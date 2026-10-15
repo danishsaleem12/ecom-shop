@@ -1,0 +1,371 @@
+/* ProductReviews.css — moved out of ProductReviews.js (it used to be a <style jsx global> block there). Plain CSS, same rules. */
+.aur-rev {
+  margin-top: clamp(48px, 7vw, 96px);
+  padding-top: clamp(32px, 4vw, 56px);
+  border-top: 1px solid var(--line, rgba(24, 21, 19, 0.14));
+  scroll-margin-top: 110px;
+}
+.aur-rev__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.aur-rev h2 {
+  margin: 0;
+  font-family: var(--aur-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(1.7rem, 2.6vw, 2.2rem);
+}
+.aur-rev h3 {
+  margin: 0 0 18px;
+  font-family: var(--aur-serif), Georgia, serif;
+  font-weight: 500;
+  font-size: 1.4rem;
+}
+.aur-rev__note {
+  margin: 0 0 18px;
+  font-size: 0.92rem;
+  color: rgba(24, 21, 19, 0.68);
+}
+.aur-rev__link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.aur-rev__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 24px;
+  border-radius: 999px;
+  border: 1px solid var(--ink, #181513);
+  background: transparent;
+  color: var(--ink, #181513);
+  font: inherit;
+  font-size: 0.88rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s;
+}
+.aur-rev__btn:hover:not(:disabled) {
+  background: var(--ink, #181513);
+  color: var(--cream, #f6efe8);
+}
+.aur-rev__btn--solid {
+  background: var(--ink, #181513);
+  color: var(--cream, #f6efe8);
+}
+.aur-rev__btn--solid:hover:not(:disabled) {
+  background: #3a322c;
+}
+.aur-rev__btn--ghost {
+  border-color: var(--line, rgba(24, 21, 19, 0.26));
+}
+.aur-rev__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.aur-rev__btn:focus-visible,
+.aur-rev__link:focus-visible,
+.aur-rev select:focus-visible,
+.aur-rev input:focus-visible,
+.aur-rev textarea:focus-visible {
+  outline: 2px solid var(--copper, #c98a63);
+  outline-offset: 2px;
+}
+
+.aur-rev__summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 420px);
+  gap: clamp(24px, 5vw, 72px);
+  align-items: center;
+  margin-bottom: 32px;
+}
+.aur-rev__avg {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.aur-rev__avg strong {
+  font-family: var(--aur-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: 3.4rem;
+  line-height: 1;
+}
+.aur-rev__avg > span {
+  font-size: 0.86rem;
+  color: rgba(24, 21, 19, 0.62);
+}
+.aur-rev__bars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.aur-rev__bars li {
+  display: grid;
+  grid-template-columns: 52px 1fr 28px;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.82rem;
+  color: rgba(24, 21, 19, 0.7);
+}
+.aur-rev__bars li span:last-child {
+  text-align: right;
+}
+.aur-rev__bar {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(24, 21, 19, 0.1);
+  overflow: hidden;
+}
+.aur-rev__bar i {
+  display: block;
+  height: 100%;
+  background: var(--copper, #c98a63);
+}
+
+.aur-rev__mine {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+  padding: 20px 22px;
+  border-radius: 6px;
+  background: rgba(201, 138, 99, 0.12);
+}
+.aur-rev__mine-label {
+  margin: 0 0 8px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(24, 21, 19, 0.62);
+}
+.aur-rev__mine-actions {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.aur-rev__hidden {
+  margin: 10px 0 0;
+  font-size: 0.84rem;
+  color: #8c5330;
+}
+
+.aur-rev__form {
+  display: grid;
+  gap: 18px;
+  max-width: 640px;
+  margin-bottom: 36px;
+  padding: 24px;
+  border: 1px solid var(--line, rgba(24, 21, 19, 0.14));
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.45);
+}
+.aur-rev__pick {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.aur-rev__stars {
+  display: inline-flex;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.aur-rev__stars legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+.aur-rev__stars label {
+  position: relative;
+  display: inline-flex;
+  cursor: pointer;
+  line-height: 0;
+}
+.aur-rev__stars input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+.aur-rev__stars svg {
+  fill: none;
+  stroke: #c98a63;
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  transition: transform 0.15s;
+}
+.aur-rev__stars label.is-on svg {
+  fill: #c98a63;
+}
+.aur-rev__stars label:hover svg {
+  transform: scale(1.12);
+}
+.aur-rev__stars label:has(input:focus-visible) {
+  outline: 2px solid var(--copper, #c98a63);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.aur-rev__word {
+  font-size: 0.88rem;
+  color: rgba(24, 21, 19, 0.68);
+}
+.aur-rev__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.aur-rev__field {
+  display: grid;
+  gap: 8px;
+}
+.aur-rev__field span {
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(24, 21, 19, 0.7);
+}
+.aur-rev__field em {
+  font-style: normal;
+  letter-spacing: 0;
+  text-transform: none;
+  float: right;
+  color: rgba(24, 21, 19, 0.5);
+}
+.aur-rev__field input,
+.aur-rev__field textarea,
+.aur-rev__toolbar select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid rgba(24, 21, 19, 0.26);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink, #181513);
+  font: inherit;
+  font-size: 0.95rem;
+}
+.aur-rev__field textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+.aur-rev__error {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #a23b2a;
+}
+.aur-rev__form-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.aur-rev__toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+.aur-rev__toolbar label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.84rem;
+  color: rgba(24, 21, 19, 0.68);
+}
+.aur-rev__toolbar select {
+  width: auto;
+  padding: 8px 12px;
+}
+.aur-rev__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.aur-rev__item {
+  padding: 24px 0;
+  border-top: 1px solid var(--line, rgba(24, 21, 19, 0.14));
+}
+.aur-rev__item-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.aur-rev__date {
+  font-size: 0.8rem;
+  color: rgba(24, 21, 19, 0.55);
+}
+.aur-rev__title {
+  margin: 12px 0 0;
+  font-weight: 500;
+  font-size: 1rem;
+}
+.aur-rev__text {
+  margin: 8px 0 0;
+  max-width: 70ch;
+  font-weight: 300;
+  line-height: 1.7;
+  color: rgba(24, 21, 19, 0.78);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.aur-rev__by {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 14px 0 0;
+  font-size: 0.84rem;
+  color: rgba(24, 21, 19, 0.7);
+}
+.aur-rev__verified {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgba(111, 143, 116, 0.18);
+  color: #3f6246;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+.aur-rev__more {
+  margin-top: 12px;
+}
+.aur-rev__toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  z-index: 60;
+  padding: 12px 22px;
+  border-radius: 999px;
+  background: var(--ink, #181513);
+  color: var(--cream, #f6efe8);
+  font-size: 0.88rem;
+}
+
+@media (max-width: 780px) {
+  .aur-rev__summary {
+    grid-template-columns: 1fr;
+  }
+}

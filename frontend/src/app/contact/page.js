@@ -4,18 +4,21 @@ import Footer from '@/components/Footer';
 import GetInTouch from '@/components/GetInTouch';
 
 export const metadata = {
-  title: 'Contact | Aurelia',
+  alternates: { canonical: '/contact' },
+  title: 'Contact',
   description:
     "Whether you have a question about a piece, an order, or simply want to say hello, we'd love to hear from you.",
 };
 
 export default function ContactPage() {
   return (
-    <main>
+    <>
       <Navbar />
-      <ContactHero />
-      <GetInTouch />
+      <main>
+        <ContactHero />
+        <GetInTouch />
+      </main>
       <Footer />
-    </main>
+    </>
   );
 }

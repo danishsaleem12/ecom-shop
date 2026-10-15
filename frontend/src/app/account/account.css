@@ -1,0 +1,118 @@
+/* account.css — moved out of page.js (it used to be a <style jsx global> block there). Plain CSS, same rules. */
+.acc-details {
+  --cream: #f6efe8;
+  --ink: #181513;
+  --copper: #c98a63;
+  --line: rgba(24, 21, 19, 0.16);
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 140px 24px 100px;
+  font-family: var(--aur-sans), system-ui, sans-serif;
+  color: var(--ink);
+}
+.acc-details__eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(24, 21, 19, 0.62);
+}
+.acc-details h1 {
+  margin: 4px 0 32px;
+  font-family: var(--aur-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: 2.2rem;
+}
+.acc-details__tabs {
+  display: flex;
+  gap: 6px;
+  margin: -12px 0 28px;
+}
+.acc-details__tabs a {
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: rgba(24, 21, 19, 0.7);
+  font-size: 0.84rem;
+  text-decoration: none;
+}
+.acc-details__tabs a.is-active {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--cream);
+}
+.acc-details__empty {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-start;
+}
+.acc-details__cta {
+  display: inline-flex;
+  height: 46px;
+  padding: 0 24px;
+  align-items: center;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--cream);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+.acc-details__form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.acc-details__form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: rgba(24, 21, 19, 0.65);
+}
+.acc-details__form input {
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(24, 21, 19, 0.22);
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.95rem;
+}
+.acc-details__form input:disabled {
+  background: rgba(24, 21, 19, 0.05);
+  color: rgba(24, 21, 19, 0.62);
+}
+.acc-details__form small {
+  font-size: 0.75rem;
+  color: rgba(24, 21, 19, 0.62);
+}
+.acc-details__msg {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+.acc-details__msg--error {
+  background: rgba(164, 75, 63, 0.12);
+  color: #a44b3f;
+}
+.acc-details__msg--ok {
+  background: rgba(90, 140, 100, 0.15);
+  color: #3f6e4a;
+}
+.acc-details__form button {
+  height: 48px;
+  margin-top: 4px;
+  border-radius: 999px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--cream);
+  font: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.acc-details__form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

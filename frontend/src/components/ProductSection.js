@@ -34,6 +34,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Cormorant_Garamond, Figtree } from 'next/font/google';
 import { API_URL, imageSrc } from '@/lib/imageUrl';
+import './styles/ProductSection.css';
 
 const serif = Cormorant_Garamond({
   subsets: ['latin'],
@@ -711,124 +712,8 @@ export default function ProductSection({
 
       <SectionCursor rootRef={rootRef} enabled={revealed} />
 
+      {/* Rules whose class names are defined differently in other sections stay here: see src/components/styles/README.md */}
       <style jsx global>{`
-        /* ═══════════════════════════════════════════════════════════════════
-           ROOT
-           ═══════════════════════════════════════════════════════════════════ */
-        .aur-shop {
-          --sand-1: #d2c2ac;
-          --sand-2: #c2b199;
-          --sand-3: #b8a68e;
-          --ink: #2a2018;
-          --ink-soft: rgba(42, 32, 24, 0.72);
-          --line: rgba(42, 32, 24, 0.28);
-          --gutter: clamp(20px, 8.9vw, 150px);
-          --ease-out: cubic-bezier(0.22, 0.8, 0.2, 1);
-          --ease-expo: cubic-bezier(0.19, 1, 0.22, 1);
-          --ease-wipe: cubic-bezier(0.76, 0, 0.18, 1);
-          --frame-h: clamp(280px, 27.5vw, 430px);
-          --mx: 0;
-          --my: 0;
-          --sp: 0;
-          position: relative;
-          overflow: hidden;
-          isolation: isolate;
-          color: var(--ink);
-          font-family: var(--aur-serif), Georgia, serif;
-          padding: clamp(40px, 4vw, 64px) var(--gutter) clamp(44px, 5vw, 76px);
-          background:
-            radial-gradient(ellipse 60% 55% at 30% 0%, rgba(255, 244, 222, 0.5), transparent 70%),
-            linear-gradient(165deg, var(--sand-1) 0%, var(--sand-2) 55%, var(--sand-3) 100%);
-        }
-        .aur-shop a,
-        .aur-shop button {
-          -webkit-tap-highlight-color: transparent;
-        }
-
-        /* film grain (jitters like the hero) */
-        .aur-shop::before {
-          content: '';
-          position: absolute;
-          inset: -10%;
-          z-index: -1;
-          pointer-events: none;
-          opacity: 0.16;
-          mix-blend-mode: multiply;
-          background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-          animation: aurGrain 1.2s steps(6) infinite;
-        }
-        @keyframes aurGrain {
-          0% {
-            transform: translate3d(0, 0, 0);
-          }
-          20% {
-            transform: translate3d(-3%, 2%, 0);
-          }
-          40% {
-            transform: translate3d(2%, -3%, 0);
-          }
-          60% {
-            transform: translate3d(-2%, -1%, 0);
-          }
-          80% {
-            transform: translate3d(3%, 3%, 0);
-          }
-          100% {
-            transform: translate3d(0, 0, 0);
-          }
-        }
-
-        /* arc, top right — slowly floats */
-        .aur-shop::after {
-          content: '';
-          position: absolute;
-          z-index: -1;
-          pointer-events: none;
-          width: 1500px;
-          height: 1500px;
-          top: -1380px;
-          right: -420px;
-          border-radius: 50%;
-          border: 1px solid rgba(255, 250, 240, 0.4);
-          animation: aurArc 16s ease-in-out infinite alternate;
-        }
-        @keyframes aurArc {
-          from {
-            transform: translate3d(0, 0, 0) rotate(0deg);
-          }
-          to {
-            transform: translate3d(-30px, 26px, 0) rotate(2.5deg);
-          }
-        }
-
-        /* window light that drifts across the wall */
-        .aur-shop__light {
-          position: absolute;
-          inset: -8%;
-          z-index: -1;
-          pointer-events: none;
-          background:
-            linear-gradient(112deg, transparent 8%, rgba(255, 246, 228, 0.36) 20%, transparent 31%),
-            linear-gradient(112deg, transparent 38%, rgba(255, 246, 228, 0.24) 47%, transparent 56%),
-            linear-gradient(112deg, transparent 62%, rgba(70, 48, 30, 0.13) 72%, transparent 82%);
-          animation: aurLight 11s ease-in-out infinite alternate;
-        }
-        .aur-shop__light--b {
-          background: radial-gradient(45% 55% at 85% 10%, rgba(255, 240, 210, 0.5), transparent 70%);
-          animation-duration: 15s;
-          animation-direction: alternate-reverse;
-        }
-        @keyframes aurLight {
-          from {
-            opacity: 0.55;
-            transform: translate3d(-2.5%, 0, 0) skewX(0deg);
-          }
-          to {
-            opacity: 1;
-            transform: translate3d(2.5%, 1.5%, 0) skewX(-2deg);
-          }
-        }
-
         .aur-dust {
           position: absolute;
           inset: 0;
@@ -839,77 +724,11 @@ export default function ProductSection({
           opacity: 0;
           transition: opacity 2s ease 0.6s;
         }
-        .aur-shop.is-in .aur-dust {
-          opacity: 1;
-        }
-
-        /* ═══════════════════════════════════════════════════════════════════
-           HEADER
-           ═══════════════════════════════════════════════════════════════════ */
-        .aur-shop__head {
-          position: relative;
-          z-index: 2;
-          display: grid;
-          grid-template-columns: auto minmax(0, 1fr) auto;
-          align-items: end;
-          column-gap: clamp(28px, 3.4vw, 48px);
-          row-gap: 22px;
-          margin-bottom: clamp(26px, 2.6vw, 36px);
-        }
-        .aur-shop__eyebrow {
-          margin: 0 0 clamp(14px, 1.6vw, 22px);
-          font-family: var(--aur-sans), system-ui, sans-serif;
-          font-size: 0.66rem;
-          font-weight: 400;
-          letter-spacing: 0.42em;
-          text-transform: uppercase;
-          color: var(--ink);
-        }
-        .aur-letter {
-          display: inline-block;
-          opacity: 0;
-        }
-        .aur-shop.is-in .aur-letter {
-          animation: aurLetter 0.9s var(--ease-expo) both;
-        }
-        @keyframes aurLetter {
-          from {
-            opacity: 0;
-            transform: translate3d(0, 60%, 0);
-            filter: blur(4px);
-          }
-          to {
-            opacity: 1;
-            transform: translate3d(0, 0, 0);
-            filter: blur(0);
-          }
-        }
-
-        .aur-shop__title {
-          display: flex;
-          flex-direction: column;
-          margin: 0;
-          font-weight: 400;
-          font-size: clamp(2.5rem, 4.3vw, 4rem);
-          line-height: 1.02;
-          letter-spacing: -0.015em;
-        }
         .aur-line {
           display: block;
           overflow: hidden;
           padding: 0.04em 0.2em 0.14em 0;
           margin-bottom: -0.1em;
-        }
-        .aur-line--indent {
-          padding-left: clamp(36px, 4vw, 58px);
-        }
-        .aur-line__in {
-          display: inline-block;
-          transform: translate3d(0, 115%, 0) rotate(3deg);
-          transform-origin: left bottom;
-        }
-        .aur-shop.is-in .aur-line__in {
-          animation: aurRise 1.35s var(--ease-expo) both;
         }
         .aur-line__in--accent {
           font-style: italic;
@@ -920,287 +739,6 @@ export default function ProductSection({
           background-clip: text;
           -webkit-text-fill-color: transparent;
           color: transparent;
-        }
-        .aur-shop.is-in .aur-line__in--accent {
-          animation: aurRise 1.35s var(--ease-expo) both, aurShimmer 8s ease-in-out 1.8s infinite alternate;
-        }
-        @keyframes aurRise {
-          from {
-            transform: translate3d(0, 115%, 0) rotate(3deg);
-          }
-          to {
-            transform: translate3d(0, 0, 0) rotate(0);
-          }
-        }
-        @keyframes aurShimmer {
-          from {
-            background-position: 0% 50%;
-          }
-          to {
-            background-position: 100% 50%;
-          }
-        }
-
-        .aur-shop__desc {
-          position: relative;
-          align-self: center;
-          margin-top: clamp(22px, 2.4vw, 34px);
-          padding-left: clamp(20px, 2.2vw, 30px);
-          opacity: 0;
-        }
-        .aur-shop__desc::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 0;
-          bottom: 0;
-          width: 1px;
-          background: var(--line);
-          transform: scaleY(0);
-          transform-origin: top;
-        }
-        .aur-shop.is-in .aur-shop__desc {
-          animation: aurFade 1.2s ease 0.7s both;
-        }
-        .aur-shop.is-in .aur-shop__desc::before {
-          animation: aurGrowY 1.2s var(--ease-out) 0.6s both;
-        }
-        @keyframes aurGrowY {
-          to {
-            transform: scaleY(1);
-          }
-        }
-        .aur-shop__desc p {
-          margin: 0;
-          max-width: 27ch;
-          font-size: clamp(0.95rem, 1.05vw, 1.05rem);
-          line-height: 1.55;
-          color: var(--ink);
-        }
-
-        .aur-shop__all {
-          display: inline-flex;
-          align-items: center;
-          gap: 12px;
-          margin-bottom: clamp(30px, 3vw, 46px);
-          font-family: var(--aur-sans), system-ui, sans-serif;
-          font-size: 0.78rem;
-          letter-spacing: 0.02em;
-          color: var(--ink);
-          text-decoration: none;
-          white-space: nowrap;
-          opacity: 0;
-        }
-        .aur-shop.is-in .aur-shop__all {
-          animation: aurFade 1.2s ease 0.9s both;
-        }
-        .aur-shop__all::before {
-          content: '';
-          width: clamp(40px, 5vw, 72px);
-          height: 1px;
-          margin-right: 6px;
-          background: var(--line);
-          transform: scaleX(0);
-          transform-origin: right;
-          transition: width 0.6s var(--ease-out);
-        }
-        .aur-shop.is-in .aur-shop__all::before {
-          animation: aurGrowX 1.3s var(--ease-out) 1s both;
-        }
-        .aur-shop__all:hover::before {
-          width: clamp(60px, 7vw, 100px);
-        }
-        @keyframes aurGrowX {
-          to {
-            transform: scaleX(1);
-          }
-        }
-        .aur-shop__all svg {
-          transition: transform 0.45s var(--ease-out);
-        }
-        .aur-shop__all:hover svg {
-          transform: translateX(5px);
-        }
-
-        @keyframes aurFade {
-          from {
-            opacity: 0;
-            transform: translate3d(0, 16px, 0);
-          }
-          to {
-            opacity: 1;
-            transform: translate3d(0, 0, 0);
-          }
-        }
-
-        /* ═══════════════════════════════════════════════════════════════════
-           PRODUCT ROW
-           ═══════════════════════════════════════════════════════════════════ */
-        .aur-shop__row {
-          position: relative;
-          z-index: 2;
-          display: flex;
-          align-items: flex-start;
-          gap: clamp(14px, 1.8vw, 26px);
-          touch-action: pan-y;
-        }
-        .aur-piece {
-          display: flex;
-          flex-direction: column;
-          flex: 1.3 1 0;
-          min-width: 0;
-          --depth: 1;
-          --sd: 22;
-        }
-        .aur-piece--1 {
-          flex: 2.66 1 0;
-          --depth: 0.6;
-          --sd: 34;
-        }
-        .aur-piece--2 {
-          flex: 1 1 0;
-          --depth: 1.4;
-          --sd: 12;
-        }
-
-        /* frame: wipe open */
-        .aur-piece__frame {
-          position: relative;
-          display: block;
-          height: var(--frame-h);
-          overflow: hidden;
-          background: var(--sand-3);
-          clip-path: inset(0 0 0 100%);
-        }
-        .aur-shop__row.is-prev .aur-piece__frame {
-          clip-path: inset(0 100% 0 0);
-        }
-        .aur-shop.is-in .aur-piece__frame {
-          animation: aurWipeNext 1.5s var(--ease-wipe) calc(var(--i) * 140ms + 100ms) both;
-        }
-        .aur-shop.is-in .aur-shop__row.is-prev .aur-piece__frame {
-          animation-name: aurWipePrev;
-        }
-        @keyframes aurWipeNext {
-          from {
-            clip-path: inset(0 0 0 100%);
-          }
-          to {
-            clip-path: inset(0 0 0 0);
-          }
-        }
-        @keyframes aurWipePrev {
-          from {
-            clip-path: inset(0 100% 0 0);
-          }
-          to {
-            clip-path: inset(0 0 0 0);
-          }
-        }
-
-        /* layer 1: mouse + scroll parallax */
-        .aur-piece__par {
-          position: absolute;
-          inset: -8%;
-          transform: translate3d(
-            calc(var(--mx) * -18px * var(--depth)),
-            calc(var(--my) * -10px * var(--depth) + var(--sp) * var(--sd) * 1px),
-            0
-          );
-          transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
-          will-change: transform;
-        }
-        /* layer 2: Ken Burns settle after the wipe */
-        .aur-piece__kb {
-          position: absolute;
-          inset: 0;
-          transform: scale(1.22);
-        }
-        .aur-shop.is-in .aur-piece__kb {
-          animation: aurKB 2.6s var(--ease-out) calc(var(--i) * 140ms + 150ms) both;
-        }
-        @keyframes aurKB {
-          from {
-            transform: scale(1.22) translate3d(1.6%, 0.8%, 0);
-          }
-          to {
-            transform: scale(1) translate3d(0, 0, 0);
-          }
-        }
-        /* layer 3: hover zoom */
-        .aur-piece__kb img,
-        .aur-piece__placeholder {
-          display: block;
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          transform: scale(1);
-          transition: transform 1.3s var(--ease-out), filter 0.6s ease;
-          -webkit-user-drag: none;
-        }
-        .aur-piece__placeholder {
-          background: linear-gradient(135deg, #cdbba4, #aa977f);
-        }
-        .aur-piece:hover .aur-piece__kb img {
-          transform: scale(1.07);
-        }
-        /* dim the siblings while one is hovered */
-        .aur-shop__row:hover .aur-piece:not(:hover) .aur-piece__kb img {
-          filter: saturate(0.7) brightness(0.86);
-        }
-
-        /* caption */
-        .aur-piece__cap {
-          display: flex;
-          align-items: flex-start;
-          gap: clamp(16px, 2vw, 28px);
-          margin-top: 16px;
-          opacity: 0;
-        }
-        .aur-shop.is-in .aur-piece__cap {
-          animation: aurFade 1.1s ease calc(var(--i) * 140ms + 700ms) both;
-        }
-        .aur-piece__meta {
-          display: flex;
-          flex-direction: column;
-          gap: 3px;
-          color: var(--ink);
-          text-decoration: none;
-          font-size: 0.86rem;
-          line-height: 1.3;
-          transition: transform 0.6s var(--ease-out);
-        }
-        .aur-piece:hover .aur-piece__meta {
-          transform: translateX(5px);
-        }
-        .aur-piece__meta strong {
-          align-self: flex-start;
-          font-weight: 400;
-          background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
-          transition: background-size 0.6s var(--ease-out);
-        }
-        .aur-piece:hover .aur-piece__meta strong {
-          background-size: 100% 1px;
-        }
-        .aur-piece__meta span {
-          color: var(--ink-soft);
-          font-variant-numeric: tabular-nums;
-        }
-        .aur-piece__rule {
-          flex: 1 1 auto;
-          min-width: 16px;
-          height: 1px;
-          margin-top: 0.7em;
-          background: var(--line);
-          transform: scaleX(0);
-          transform-origin: left;
-          transition: background 0.4s ease;
-        }
-        .aur-shop.is-in .aur-piece__rule {
-          animation: aurGrowX 1.3s var(--ease-out) calc(var(--i) * 140ms + 900ms) both;
-        }
-        .aur-piece:hover .aur-piece__rule {
-          background: rgba(42, 32, 24, 0.6);
         }
 
         /* ═══════════════════════════════════════════════════════════════════
@@ -1214,58 +752,6 @@ export default function ProductSection({
         .aur-magnet.is-magnet {
           transition-duration: 0.22s;
         }
-        .aur-shop__nav {
-          display: inline-flex;
-          align-items: center;
-          gap: 10px;
-          flex-shrink: 0;
-          margin-top: -6px;
-        }
-        .aur-shop__nav button {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 30px;
-          height: 30px;
-          padding: 0;
-          border-radius: 50%;
-          border: 1px solid transparent;
-          background: transparent;
-          color: var(--ink);
-          cursor: pointer;
-          transition: background 0.35s ease, color 0.35s ease, border-color 0.35s ease, transform 0.45s var(--ease-out);
-        }
-        .aur-shop__nav button.is-primary {
-          width: 34px;
-          height: 34px;
-          border-color: rgba(42, 32, 24, 0.55);
-        }
-        .aur-shop__nav button:hover {
-          background: var(--ink);
-          color: var(--sand-1);
-          border-color: var(--ink);
-          transform: scale(1.1);
-        }
-        .aur-shop__nav button:active {
-          transform: scale(0.92);
-        }
-        .aur-shop__count {
-          display: inline-flex;
-          align-items: baseline;
-          gap: 5px;
-          margin-left: 4px;
-          font-family: var(--aur-sans), system-ui, sans-serif;
-          font-size: 0.72rem;
-          letter-spacing: 0.06em;
-          color: var(--ink);
-        }
-        .aur-shop__count em {
-          font-style: normal;
-          opacity: 0.5;
-        }
-        .aur-shop__count > span:last-child {
-          opacity: 0.55;
-        }
         .aur-roll {
           display: inline-flex;
           height: 1.3em;
@@ -1277,90 +763,9 @@ export default function ProductSection({
           height: 1.3em;
           overflow: hidden;
         }
-        .aur-roll__col {
-          display: flex;
-          flex-direction: column;
-          transition: transform 0.9s var(--ease-wipe);
-        }
         .aur-roll__col span {
           display: block;
           height: 1.3em;
-        }
-        .aur-shop__nav-fallback {
-          position: relative;
-          z-index: 2;
-          display: flex;
-          justify-content: flex-end;
-          margin-top: 18px;
-          opacity: 0;
-        }
-        .aur-shop.is-in .aur-shop__nav-fallback {
-          animation: aurFade 1.1s ease 0.9s both;
-        }
-
-        /* ═══════════════════════════════════════════════════════════════════
-           LOADING / ERROR / EMPTY
-           ═══════════════════════════════════════════════════════════════════ */
-        .aur-shop__row.is-skeleton .aur-skel {
-          flex: 1.3 1 0;
-        }
-        .aur-shop__row.is-skeleton .aur-skel--wide {
-          flex: 2.66 1 0;
-        }
-        .aur-shop__row.is-skeleton .aur-skel--last {
-          flex: 1 1 0;
-        }
-        .aur-skel__frame {
-          height: var(--frame-h);
-          background: linear-gradient(100deg, #c4b39c 30%, #d3c4ae 50%, #c4b39c 70%);
-          background-size: 200% 100%;
-          animation: aurSkel 1.6s ease-in-out infinite;
-        }
-        .aur-skel__line {
-          height: 10px;
-          width: 55%;
-          margin-top: 18px;
-          background: linear-gradient(100deg, #c4b39c 30%, #d3c4ae 50%, #c4b39c 70%);
-          background-size: 200% 100%;
-          animation: aurSkel 1.6s ease-in-out infinite;
-        }
-        @keyframes aurSkel {
-          0% {
-            background-position: 200% 0;
-          }
-          100% {
-            background-position: -200% 0;
-          }
-        }
-        .aur-shop__state {
-          position: relative;
-          z-index: 2;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 16px;
-          padding: 70px 20px;
-          text-align: center;
-          font-size: 1.05rem;
-          color: var(--ink-soft);
-        }
-        .aur-shop__state button {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          padding: 10px 20px;
-          border-radius: 999px;
-          border: 1px solid var(--line);
-          background: transparent;
-          color: var(--ink);
-          font-family: var(--aur-sans), system-ui, sans-serif;
-          font-size: 0.85rem;
-          cursor: pointer;
-          transition: background 0.3s ease, color 0.3s ease;
-        }
-        .aur-shop__state button:hover {
-          background: var(--ink);
-          color: var(--sand-1);
         }
 
         /* ═══════════════════════════════════════════════════════════════════
@@ -1375,10 +780,6 @@ export default function ProductSection({
           pointer-events: none;
           opacity: 0;
           transition: opacity 0.35s ease;
-        }
-        .aur-cursor.is-visible,
-        .aur-cursor-dot.is-visible {
-          opacity: 1;
         }
         .aur-cursor::before {
           content: '';
@@ -1420,9 +821,6 @@ export default function ProductSection({
           opacity: 0;
           transition: opacity 0.3s ease;
         }
-        .aur-cursor.has-label .aur-cursor__label {
-          opacity: 1;
-        }
         .aur-cursor-dot::before {
           content: '';
           position: absolute;
@@ -1435,66 +833,6 @@ export default function ProductSection({
           background: var(--ink);
           transition: transform 0.3s ease;
         }
-        .aur-cursor-dot.is-grow::before {
-          transform: scale(0);
-        }
-
-        /* ═══════════════════════════════════════════════════════════════════
-           FOCUS + PAUSE
-           ═══════════════════════════════════════════════════════════════════ */
-        .aur-shop a:focus-visible,
-        .aur-shop button:focus-visible {
-          outline: 2px solid #8a5a3a;
-          outline-offset: 4px;
-        }
-        .aur-shop.is-offscreen::before,
-        .aur-shop.is-offscreen::after,
-        .aur-shop.is-offscreen .aur-shop__light,
-        .aur-shop.is-offscreen .aur-line__in--accent {
-          animation-play-state: paused;
-        }
-
-        /* ═══════════════════════════════════════════════════════════════════
-           RESPONSIVE
-           ═══════════════════════════════════════════════════════════════════ */
-        @media (max-width: 980px) {
-          .aur-shop__head {
-            grid-template-columns: 1fr;
-            align-items: start;
-          }
-          .aur-shop__desc {
-            margin-top: 0;
-            padding-left: 0;
-          }
-          .aur-shop__desc::before {
-            display: none;
-          }
-          .aur-shop__all {
-            margin-bottom: 0;
-          }
-          .aur-shop__all::before {
-            display: none;
-          }
-        }
-        @media (max-width: 680px) {
-          .aur-shop {
-            --frame-h: 360px;
-          }
-          .aur-shop__row,
-          .aur-shop__row.is-skeleton {
-            flex-direction: column;
-            gap: 28px;
-          }
-          .aur-piece,
-          .aur-piece--1,
-          .aur-piece--2,
-          .aur-shop__row.is-skeleton .aur-skel,
-          .aur-shop__row.is-skeleton .aur-skel--wide,
-          .aur-shop__row.is-skeleton .aur-skel--last {
-            flex: none;
-            width: 100%;
-          }
-        }
         @media (pointer: coarse) {
           .aur-cursor,
           .aur-cursor-dot {
@@ -1506,13 +844,6 @@ export default function ProductSection({
            REDUCED MOTION
            ═══════════════════════════════════════════════════════════════════ */
         @media (prefers-reduced-motion: reduce) {
-          .aur-shop *,
-          .aur-shop *::before,
-          .aur-shop *::after {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.01ms !important;
-          }
           .aur-dust {
             display: none;
           }

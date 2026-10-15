@@ -1,0 +1,84 @@
+/* admin-promos.css — moved out of page.js (it used to be a <style jsx global> block there). Plain CSS, same rules. */
+.adm-promo__form {
+  margin-bottom: 28px;
+  background: #fff;
+}
+.adm-promo__form h2 {
+  margin: 0 0 18px;
+  font-family: var(--aur-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: 1.4rem;
+}
+.adm-promo__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px 20px;
+  margin-bottom: 16px;
+}
+.adm-promo__form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: rgba(24, 21, 19, 0.7);
+}
+.adm-promo__form input[type='text'],
+.adm-promo__form input[type='number'],
+.adm-promo__form input[type='date'],
+.adm-promo__form select {
+  height: 42px;
+  padding: 0 13px;
+  border: 1px solid rgba(24, 21, 19, 0.26);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9rem;
+}
+.adm-promo__form input:disabled {
+  background: rgba(24, 21, 19, 0.05);
+  color: rgba(24, 21, 19, 0.55);
+}
+.adm-promo__form input:focus,
+.adm-promo__form select:focus {
+  outline: 2px solid var(--copper);
+  outline-offset: 1px;
+}
+.adm-promo__form small {
+  font-size: 0.74rem;
+  color: rgba(24, 21, 19, 0.55);
+}
+.adm-promo__form label.adm-promo__check {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 0 18px;
+  font-size: 0.88rem;
+  color: var(--ink);
+}
+.adm-promo__form label.adm-promo__check input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--ink);
+}
+.adm-promo__wide {
+  margin-bottom: 16px;
+}
+.adm-promo__form .adm__error {
+  margin: 0 0 14px;
+}
+.adm-promo__code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.08em;
+}
+.adm-promo__note {
+  font-style: italic;
+}
+.adm-promo__facts {
+  margin: 12px 0 0;
+}
+.adm__list .adm__foot > span:last-child .adm__btn {
+  height: 36px;
+  padding: 0 16px;
+  font-size: 0.8rem;
+}

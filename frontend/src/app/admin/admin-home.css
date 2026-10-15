@@ -1,0 +1,199 @@
+/* admin-home.css — moved out of page.js (it used to be a <style jsx global> block there). Plain CSS, same rules. */
+.dash {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.dash__stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.dash__stat,
+.dash__panel {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.55);
+  padding: 18px 20px;
+}
+.dash__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.dash__label {
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(24, 21, 19, 0.62);
+}
+.dash__stat strong {
+  font-family: var(--aur-serif), Georgia, serif;
+  font-weight: 500;
+  font-size: 1.9rem;
+  line-height: 1.15;
+}
+.dash__sub,
+.dash__fine {
+  font-size: 0.8rem;
+  color: rgba(24, 21, 19, 0.62);
+}
+.dash__fine {
+  margin: 0 0 12px;
+}
+.dash__sub b {
+  font-weight: 600;
+}
+.dash__sub .is-up {
+  color: #3f6e4a;
+}
+.dash__sub .is-down {
+  color: #a44b3f;
+}
+.dash__attention {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.dash__attention a {
+  flex: 1 1 220px;
+  padding: 14px 18px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+  color: inherit;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+.dash__attention a strong {
+  font-size: 1.15rem;
+  margin-right: 4px;
+}
+.dash__attention a.is-hot {
+  border-color: var(--copper);
+  background: #fff;
+}
+.dash__attention a:hover,
+.dash__attention a:focus-visible {
+  border-color: var(--ink);
+}
+.dash__panel h2 {
+  margin: 0 0 6px;
+  font-family: var(--aur-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: 1.4rem;
+}
+.dash__chart {
+  margin: 14px 0 0;
+}
+.dash__bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 160px;
+  border-bottom: 1px solid var(--line);
+}
+.dash__bar {
+  flex: 1 1 0;
+  min-width: 0;
+  background: var(--copper);
+  border-radius: 3px 3px 0 0;
+  opacity: 0.85;
+}
+.dash__bar:hover {
+  opacity: 1;
+  background: var(--ink);
+}
+.dash__chart figcaption {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 0.74rem;
+  color: rgba(24, 21, 19, 0.62);
+}
+.dash__two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+.dash__rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.dash__rows li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  font-size: 0.9rem;
+}
+.dash__rows li:first-child {
+  border-top: 0;
+}
+.dash__rows--ranked {
+  counter-reset: rank;
+}
+.dash__rows--ranked li::before {
+  counter-increment: rank;
+  content: counter(rank);
+  width: 18px;
+  text-align: center;
+  font-size: 0.78rem;
+  color: rgba(24, 21, 19, 0.62);
+}
+.dash__thumb {
+  flex: 0 0 38px;
+  width: 38px;
+  height: 46px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #e4d9cd;
+}
+.dash__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.dash__rowtext {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.dash__rowtext a {
+  color: inherit;
+  text-underline-offset: 3px;
+}
+.dash__rowtext small {
+  color: rgba(24, 21, 19, 0.62);
+  font-size: 0.78rem;
+}
+.dash__pill {
+  flex: 0 0 auto;
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: rgba(201, 138, 99, 0.18);
+  color: #8a5a3a;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+.dash__pill.is-zero {
+  background: rgba(164, 75, 63, 0.15);
+  color: #a44b3f;
+}
+@media (max-width: 900px) {
+  .dash__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .dash__two {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 480px) {
+  .dash__stat strong {
+    font-size: 1.5rem;
+  }
+}

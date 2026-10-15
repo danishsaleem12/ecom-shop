@@ -12,15 +12,168 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* The store is designed on a light "sand" palette and has no dark theme. The old OS dark-mode override turned
+   inherited text light grey on light pages (unreadable), so it is gone; color-scheme keeps form controls and
+   scrollbars light too. */
+:root {
+  color-scheme: light;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ── Loading states (app/loading.js, shop/loading.js, shop/[id]/loading.js, admin/loading.js) ── */
+.aur-skel-page {
+  min-height: 70vh;
+  background: #f6efe8;
+  color: #181513;
+  padding: clamp(110px, 12vw, 150px) clamp(20px, 5.2vw, 96px) 80px;
+}
+.aur-skel {
+  display: block;
+  border-radius: 6px;
+  background: linear-gradient(90deg, rgba(24, 21, 19, 0.06) 25%, rgba(24, 21, 19, 0.11) 37%, rgba(24, 21, 19, 0.06) 63%);
+  background-size: 400% 100%;
+  animation: aur-shimmer 1.4s ease infinite;
+}
+@keyframes aur-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+.aur-skel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  gap: 28px 20px;
+  margin-top: 36px;
+}
+.aur-skel-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: clamp(24px, 5vw, 72px);
+}
+@media (max-width: 760px) {
+  .aur-skel-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+.aur-load {
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: #f6efe8;
+  color: #181513;
+}
+.aur-load__mark {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.6rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  animation: aur-pulse 1.6s ease-in-out infinite;
+}
+.aur-load__bar {
+  position: relative;
+  width: 120px;
+  height: 2px;
+  overflow: hidden;
+  background: rgba(24, 21, 19, 0.12);
+}
+.aur-load__bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: #c98a63;
+  animation: aur-slide 1.3s ease-in-out infinite;
+}
+@keyframes aur-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes aur-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(300%);
+  }
+}
+.aur-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+@media (prefers-reduced-motion: reduce) {
+  .aur-skel,
+  .aur-load__mark,
+  .aur-load__bar::after {
+    animation: none;
+  }
+}
+
+/* ── Accessibility (checklist #34) ─────────────────────────────────────────────────────────────── */
+
+/* Keyboard focus: a safety net for anything that has no focus style of its own (:where() = zero specificity,
+   so every component's own, more specific focus style still wins). #b9724b is at least 3:1 against both the
+   sand/white pages and the dark panels. */
+:where(a, button, input, select, textarea, summary, [tabindex]:not([tabindex='-1'])):focus-visible {
+  outline: 2px solid #b9724b;
+  outline-offset: 3px;
+}
+
+/* "Skip to main content" link (components/SkipLink.js): hidden until a keyboard user tabs to it. */
+.aur-skip {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 2147483001;
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: #181513;
+  color: #f6efe8;
+  font: 500 14px/1.2 system-ui, Arial, sans-serif;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+.aur-skip:focus,
+.aur-skip:focus-visible {
+  transform: none;
+  outline: 2px solid #f6efe8;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px #181513;
+}
+main:focus {
+  outline: none; /* <main> is focused by the skip link only so that scrolling continues from there */
+}
+
+/* Reduced motion: for visitors whose system asks for less motion, every animation and transition becomes
+   (almost) instant, and smooth scrolling is off. Most components already handle this themselves; this covers the rest. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -195,6 +195,34 @@ export const COLLECTIONS = [
   },
 ];
 
+/** Look up one category ('seasonal' | 'occasions' | 'featured') by its id. */
+export const getCategoryById = (id) => CATEGORIES.find((c) => c.id === id) || null;
+
+/**
+ * Everything /collections/<slug> can show: one collection (spring-summer, evening, ...) OR a whole category
+ * (seasonal, occasions, featured) which lists the products of every collection inside it.
+ * Returns { kind, slug, category, title, description, image, tint, slugs } or null for an unknown slug.
+ * `slugs` are the collection slugs to ask the backend for (?collection=a,b,c).
+ */
+export function resolveCollectionPage(slug) {
+  const collection = getCollectionBySlug(slug);
+  if (collection) return { ...collection, kind: 'collection', slugs: [collection.slug] };
+  const category = getCategoryById(slug);
+  if (!category) return null;
+  const first = getCollectionBySlug(category.items[0]?.slug);
+  return {
+    kind: 'category',
+    slug: category.id,
+    category: 'Collections',
+    title: category.label,
+    description: category.caption,
+    href: category.href,
+    image: first?.image,
+    tint: first?.tint,
+    slugs: category.items.map((i) => i.slug),
+  };
+}
+
 /** Look up one collection by its slug — used by /collections/[slug]/page.js */
 export const getCollectionBySlug = (slug) => COLLECTIONS.find((c) => c.slug === slug) || null;
 

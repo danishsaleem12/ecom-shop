@@ -1,0 +1,91 @@
+/* frontend/src/components/styles/AccountData.css — the "Your data" section of the account page */
+.acc-data {
+  margin-top: 56px;
+  padding-top: 32px;
+  border-top: 1px solid var(--line, rgba(24, 21, 19, 0.16));
+}
+.acc-data h2 {
+  margin: 0 0 20px;
+  font-family: var(--aur-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: 1.6rem;
+}
+.acc-data__block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 20px;
+  border: 1px solid var(--line, rgba(24, 21, 19, 0.16));
+  border-radius: 12px;
+}
+.acc-data__block--danger {
+  border-color: rgba(164, 75, 63, 0.4);
+}
+.acc-data__block h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.acc-data__block p {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: rgba(24, 21, 19, 0.7);
+}
+.acc-data__btn {
+  height: 44px;
+  padding: 0 22px;
+  border-radius: 999px;
+  border: 1px solid var(--ink, #181513);
+  background: transparent;
+  color: var(--ink, #181513);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.acc-data__btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.acc-data__btn--danger {
+  border-color: #a44b3f;
+  background: #a44b3f;
+  color: #fff;
+}
+.acc-data__form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+.acc-data__form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: rgba(24, 21, 19, 0.65);
+}
+.acc-data__form input {
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(24, 21, 19, 0.22);
+  background: #fff;
+  color: var(--ink, #181513);
+  font: inherit;
+  font-size: 0.95rem;
+}
+.acc-data__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.acc-data__msg {
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+.acc-data__block .acc-data__msg--error {
+  background: rgba(164, 75, 63, 0.12);
+  color: #a44b3f;
+}

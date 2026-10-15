@@ -1,0 +1,95 @@
+/* StatusPage.css — moved out of StatusPage.js (it used to be a <style jsx global> block there). Plain CSS, same rules. */
+.aur-status {
+  --cream: #f6efe8;
+  --ink: #181513;
+  --copper: #c98a63;
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: clamp(130px, 14vw, 180px) 24px 90px;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--aur-sans), system-ui, sans-serif;
+}
+.aur-status__code {
+  margin: 0;
+  font-family: var(--aur-serif), Georgia, serif;
+  font-weight: 300;
+  font-size: clamp(5rem, 16vw, 9rem);
+  line-height: 1;
+  color: var(--copper);
+  opacity: 0.85;
+}
+.aur-status h1 {
+  margin: 8px 0 0;
+  font-family: var(--aur-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(1.9rem, 4vw, 2.8rem);
+}
+.aur-status__text {
+  max-width: 460px;
+  margin: 14px 0 0;
+  line-height: 1.65;
+  color: rgba(24, 21, 19, 0.68);
+}
+.aur-status__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 32px;
+}
+.aur-status__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  padding: 0 28px;
+  border-radius: 999px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--cream);
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.35s cubic-bezier(0.22, 0.8, 0.2, 1);
+}
+.aur-status__btn:hover {
+  transform: translateY(-2px);
+}
+.aur-status__btn--ghost {
+  background: transparent;
+  color: var(--ink);
+}
+.aur-status__links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 22px;
+  margin-top: 34px;
+  font-size: 0.88rem;
+}
+.aur-status__links a {
+  color: rgba(24, 21, 19, 0.7);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.aur-status__links a:hover {
+  color: var(--ink);
+}
+.aur-status__ref {
+  margin: 36px 0 0;
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  color: rgba(24, 21, 19, 0.62);
+}
+@media (prefers-reduced-motion: reduce) {
+  .aur-status__btn {
+    transition: none;
+  }
+}

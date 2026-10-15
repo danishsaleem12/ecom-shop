@@ -1,0 +1,67 @@
+/* admin-newsletters.css — moved out of page.js (it used to be a <style jsx global> block there). Plain CSS, same rules. */
+.nl__form {
+  display: grid;
+  gap: 18px;
+  max-width: 720px;
+  margin-bottom: 48px;
+}
+.nl__row {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 16px;
+}
+.nl__field {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.nl__field span {
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(24, 21, 19, 0.7);
+}
+.nl__field em {
+  float: right;
+  font-style: normal;
+  letter-spacing: 0;
+  text-transform: none;
+  color: rgba(24, 21, 19, 0.5);
+}
+.nl__field input,
+.nl__field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid rgba(24, 21, 19, 0.26);
+  border-radius: 4px;
+  background: #fff;
+  color: #181513;
+  font: inherit;
+  font-size: 0.95rem;
+}
+.nl__field textarea {
+  resize: vertical;
+  min-height: 180px;
+  line-height: 1.6;
+}
+.nl__field input:focus-visible,
+.nl__field textarea:focus-visible {
+  outline: 2px solid #c98a63;
+  outline-offset: 2px;
+}
+.nl__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.nl__h {
+  margin: 0 0 16px;
+  font-family: var(--aur-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: 1.5rem;
+}
+@media (max-width: 640px) {
+  .nl__row {
+    grid-template-columns: 1fr;
+  }
+}

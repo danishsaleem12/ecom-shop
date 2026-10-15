@@ -6,40 +6,60 @@
 
 import Link from 'next/link';
 import { Cormorant_Garamond, Figtree } from 'next/font/google';
+import { STORE } from '@/lib/store';
+import { pkr } from '@/lib/policy';
+import { usePolicy } from '@/context/PolicyContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
+import './help.css';
 
 const serif = Cormorant_Garamond({ subsets: ['latin'], weight: ['400', '500'], variable: '--aur-serif', display: 'swap' });
 const sans = Figtree({ subsets: ['latin'], weight: ['300', '400', '500', '600'], variable: '--aur-sans', display: 'swap' });
 
-const FAQS = [
+// Every answer below matches what the store really does today.
+// Shipping cost and the return window come from the backend (GET /api/config); delivery times from lib/policy.js.
+// Full wording of each policy lives on /shipping, /terms and /privacy.
+const buildFaqs = (POLICY) => [
     {
         q: 'How long does delivery take?',
-        a: 'Orders within the city typically arrive in 2–4 business days. Nationwide delivery usually takes 4–7 business days from the day your order is placed.',
+        a: `Orders within the city typically arrive in ${POLICY.deliveryCity}. Nationwide delivery usually takes ${POLICY.deliveryNationwide} from the day your order is placed.`,
     },
     {
-        q: 'What is your returns policy?',
-        a: 'We accept returns within 14 days of delivery for unworn, unwashed items with tags still attached. Once we receive your return, refunds are processed within 5–7 business days.',
+        q: 'How do I pay?',
+        a: 'You can pay the courier in cash when your order arrives (cash on delivery). Online payment by card or mobile wallet (PayFast, JazzCash and Easypaisa) is coming soon.',
     },
     {
-        q: 'How do I return or exchange an item?',
-        a: 'Sign in to your account, go to Orders, and select the order you\u2019d like to return. If you checked out as a guest, contact us using the details below and we\u2019ll help you along.',
+        q: 'Do I need an account to place an order?',
+        a: 'Yes. Please sign in or create a free account at checkout. It lets you track and cancel your orders any time from your Orders page.',
     },
     {
-        q: 'Do you offer free shipping?',
-        a: 'Yes — orders over Rs 15,000 ship free. Orders below that threshold have a flat shipping fee calculated at checkout.',
+        q: 'How can I track my order?',
+        a: 'Signed in? Open your Orders page to see the live status. You can also use the Track order page with your order number and the email you entered at checkout.',
     },
     {
         q: 'Can I change or cancel my order after placing it?',
-        a: 'If your order hasn\u2019t shipped yet, contact us as soon as possible and we\u2019ll do our best to accommodate changes or cancellations.',
+        a: 'You can cancel it yourself until it ships: sign in, open Orders and choose Cancel on that order. Once an order has shipped it can no longer be cancelled. To change the address or items on an order, contact us as soon as possible and we will do our best to help.',
+    },
+    {
+        q: 'Do you offer free shipping?',
+        a: `Yes \u2014 orders of ${pkr(POLICY.freeShippingThreshold)} or more ship free. Orders below that have a flat shipping fee of ${pkr(POLICY.shippingFee)}, added at checkout.`,
+    },
+    {
+        q: 'What is your returns policy?',
+        a: `We accept returns within ${POLICY.returnWindowDays} days of delivery for unworn, unwashed items with tags still attached. Once we receive your return, refunds are processed within ${POLICY.refundDays}.`,
+    },
+    {
+        q: 'How do I return or exchange an item?',
+        a: `Sign in, open your Orders page and choose Request return on the delivered order (available for ${POLICY.returnWindowDays} days after delivery). Pick the items and a reason, and we will review it; you can follow its progress on the same page. To exchange an item, email us at ${STORE.supportEmail} with your order number.`,
     },
 ];
 
 export default function HelpPage() {
     const { count: cartCount } = useCart();
     const { count: wishlistCount } = useWishlist();
+    const FAQS = buildFaqs(usePolicy());
 
     return (
         <>
@@ -47,7 +67,10 @@ export default function HelpPage() {
             <main className={`${serif.variable} ${sans.variable} help`}>
                 <p className="help__eyebrow">Support</p>
                 <h1>Help &amp; returns</h1>
-                <p className="help__sub">Answers to the questions we hear most. Can&apos;t find what you need? Reach out below.</p>
+                <p className="help__sub">
+                    Answers to the questions we hear most. See also the <Link href="/faq">full FAQ</Link>, the <Link href="/size-guide">size guide</Link> and
+                    the <Link href="/care">care guide</Link>. Can&apos;t find what you need? Reach out below.
+                </p>
 
                 <div className="help__faqs">
                     {FAQS.map((item) => (
@@ -62,110 +85,18 @@ export default function HelpPage() {
                     <h2>Still need help?</h2>
                     <p>Our team is happy to help with orders, sizing, or anything else.</p>
                     <div className="help__contactRow">
-                        <a href="mailto:support@aurelia.com">support@aurelia.com</a>
+                        <a href={`mailto:${STORE.supportEmail}`}>{STORE.supportEmail}</a>
                         <Link href="/contact">Contact form</Link>
                         <Link href="/account/orders">View your orders</Link>
+                        <Link href="/track-order">Track an order</Link>
+                        <Link href="/shipping">Shipping policy</Link>
+                        <Link href="/terms">Terms of service</Link>
+                        <Link href="/privacy">Privacy policy</Link>
                     </div>
                 </div>
             </main>
             <Footer />
 
-            <style jsx global>{`
-        .help {
-          --cream: #f6efe8;
-          --ink: #181513;
-          --copper: #c98a63;
-          --line: rgba(24, 21, 19, 0.14);
-          max-width: 680px;
-          margin: 0 auto;
-          padding: 140px 24px 100px;
-          font-family: var(--aur-sans), system-ui, sans-serif;
-          color: var(--ink);
-        }
-        .help__eyebrow {
-          margin: 0;
-          font-size: 0.72rem;
-          letter-spacing: 0.24em;
-          text-transform: uppercase;
-          color: rgba(24, 21, 19, 0.5);
-        }
-        .help h1 {
-          margin: 4px 0 12px;
-          font-family: var(--aur-serif), Georgia, serif;
-          font-weight: 400;
-          font-size: 2.4rem;
-        }
-        .help__sub {
-          margin: 0 0 36px;
-          font-size: 0.95rem;
-          line-height: 1.6;
-          color: rgba(24, 21, 19, 0.65);
-        }
-        .help__faqs {
-          display: flex;
-          flex-direction: column;
-        }
-        .help__item {
-          border-bottom: 1px solid var(--line);
-          padding: 18px 0;
-        }
-        .help__item summary {
-          cursor: pointer;
-          list-style: none;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          font-family: var(--aur-serif), Georgia, serif;
-          font-size: 1.15rem;
-          font-weight: 500;
-        }
-        .help__item summary::-webkit-details-marker {
-          display: none;
-        }
-        .help__item summary::after {
-          content: '+';
-          font-family: var(--aur-sans), system-ui, sans-serif;
-          font-size: 1.4rem;
-          font-weight: 300;
-          color: rgba(24, 21, 19, 0.45);
-          transition: transform 0.3s ease;
-        }
-        .help__item[open] summary::after {
-          transform: rotate(45deg);
-        }
-        .help__item p {
-          margin: 12px 0 0;
-          font-size: 0.92rem;
-          line-height: 1.7;
-          color: rgba(24, 21, 19, 0.68);
-        }
-        .help__contact {
-          margin-top: 44px;
-          padding-top: 30px;
-          border-top: 1px solid var(--line);
-        }
-        .help__contact h2 {
-          margin: 0 0 8px;
-          font-family: var(--aur-serif), Georgia, serif;
-          font-weight: 400;
-          font-size: 1.5rem;
-        }
-        .help__contact p {
-          margin: 0 0 16px;
-          font-size: 0.92rem;
-          color: rgba(24, 21, 19, 0.65);
-        }
-        .help__contactRow {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 10px 24px;
-        }
-        .help__contactRow a {
-          font-size: 0.92rem;
-          color: var(--ink);
-          text-decoration: underline;
-          text-underline-offset: 3px;
-      `}</style>
         </>
     );
 }

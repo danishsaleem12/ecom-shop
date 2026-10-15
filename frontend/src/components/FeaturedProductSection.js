@@ -31,7 +31,8 @@
  *   pageIndex, pageTotal
  *   productEyebrow, titleLine1 ([{ text, accent }]), titleLine2, description
  *   features: [{ icon: 'leather' | 'hand' | 'box', label: [line1, line2] }]
- *   currency, price, rating: { value, count }
+ *   productName  exact name of the store product this block sells (price, link and Add to Cart come from it)
+ *   currency, price (only shown if the product is not found), rating: { value, count }
  *   ctaLabel, ctaHref, detailsLabel, detailsHref
  *   nextProductLabel, nextProductHref
  * ─────────────────────────────────────────────────────────────────────────────
@@ -40,6 +41,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Cormorant_Garamond, Figtree } from 'next/font/google';
+import { useCart } from '@/context/CartContext';
+import { API_URL } from '@/lib/imageUrl';
+import './styles/FeaturedProductSection.css';
 
 const serif = Cormorant_Garamond({
   subsets: ['latin'],
@@ -406,17 +410,21 @@ export default function FeaturedProductSection({
   titleLine2 = 'Handbag',
   description = 'A timeless silhouette, crafted for modern life. The Aurelia bag blends heritage-inspired design with everyday functionality.',
   features = DEFAULT_FEATURES,
-  currency = '$',
-  price = '680',
+  productName = 'Tuscan Leather Satchel',
+  currency = 'Rs',
+  price = '',
   rating = { value: 4.9, count: 124 },
   ctaLabel = 'Add to Cart',
-  ctaHref = '/cart/add',
+  ctaHref = '/shop',
   detailsLabel = 'View Full Details',
-  detailsHref = '/shop/aurelia-classic-handbag',
+  detailsHref = '/shop',
   nextProductLabel = 'Next Product',
   nextProductHref = '/shop',
 }) {
   const rootRef = useRef(null);
+  const { addItem } = useCart();
+  const [product, setProduct] = useState(null); // the real store product (null until found)
+  const [added, setAdded] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const [onScreen, setOnScreen] = useState(false);
   const [tabHidden, setTabHidden] = useState(false);
@@ -436,6 +444,29 @@ export default function FeaturedProductSection({
   const prevImage = useCallback(() => {
     setActiveIndex((i) => (i - 1 + total) % total);
   }, [total]);
+
+  /* ── the real product behind this block: price, link and Add to Cart all come from it ── */
+  useEffect(() => {
+    if (!productName) return undefined;
+    const controller = new AbortController();
+    fetch(`${API_URL}/api/products?search=${encodeURIComponent(productName)}&limit=10`, { signal: controller.signal })
+      .then((res) => (res.ok ? res.json() : []))
+      .then((list) => {
+        const match = Array.isArray(list) ? list.find((p) => p.name.trim().toLowerCase() === productName.toLowerCase()) : null;
+        setProduct(match || null);
+      })
+      .catch(() => {}); // offline or aborted: the block keeps working, it just links to the shop
+    return () => controller.abort();
+  }, [productName]);
+
+  const inStock = product ? (product.stock ?? 0) > 0 : false;
+  const shownPrice = product ? Number(product.price).toLocaleString('en-PK', { maximumFractionDigits: 0 }) : price;
+  const handleAdd = () => {
+    if (!product || !inStock) return;
+    if (!addItem(product, 1)) return; // has sizes/colors: sent to its page to choose
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1800);
+  };
 
   /* ── in view: reveal once + pause work when off screen ───────────────── */
   useEffect(() => {
@@ -624,11 +655,15 @@ export default function FeaturedProductSection({
           </ul>
 
           <div className="aur-feat__price-row">
-            <span className="aur-feat__price">
-              <span className="aur-feat__price-cur">{currency}</span>
-              {price}
-            </span>
-            <i />
+            {shownPrice ? (
+              <>
+                <span className="aur-feat__price">
+                  <span className="aur-feat__price-cur">{currency}</span>
+                  {shownPrice}
+                </span>
+                <i />
+              </>
+            ) : null}
             <span className="aur-feat__rating">
               <span className="aur-feat__stars" aria-hidden="true">
                 {Array.from({ length: 5 }, (_, i) => (
@@ -645,15 +680,24 @@ export default function FeaturedProductSection({
 
           <div className="aur-feat__actions">
             <Magnetic strength={0.24} radius={44}>
-              <Link href={ctaHref} className="aur-feat__cta" data-cursor="Add">
-                <span>{ctaLabel}</span>
-                <span className="aur-feat__cta-arrow">
-                  <ArrowRight size={15} />
-                </span>
-              </Link>
+              {product ? (
+                <button type="button" className="aur-feat__cta" data-cursor="Add" onClick={handleAdd} disabled={!inStock}>
+                  <span>{!inStock ? 'Sold out' : added ? 'Added to bag' : ctaLabel}</span>
+                  <span className="aur-feat__cta-arrow">
+                    <ArrowRight size={15} />
+                  </span>
+                </button>
+              ) : (
+                <Link href={ctaHref} className="aur-feat__cta" data-cursor="Shop">
+                  <span>Shop now</span>
+                  <span className="aur-feat__cta-arrow">
+                    <ArrowRight size={15} />
+                  </span>
+                </Link>
+              )}
             </Magnetic>
 
-            <Link href={detailsHref} className="aur-feat__link">
+            <Link href={product ? `/shop/${product._id}` : detailsHref} className="aur-feat__link">
               {detailsLabel}
             </Link>
           </div>
@@ -700,466 +744,13 @@ export default function FeaturedProductSection({
 
       <SectionCursor rootRef={rootRef} enabled={revealed} />
 
+      {/* Rules whose class names are defined differently in other sections stay here: see src/components/styles/README.md */}
       <style jsx global>{`
-        /* ═══════════════════════════════════════════════════════════════════
-           ROOT
-           ═══════════════════════════════════════════════════════════════════ */
-        .aur-feat {
-          --cream: #ede6da;
-          --ink: #2a2019;
-          --ink-soft: rgba(42, 32, 25, 0.72);
-          --line: rgba(42, 32, 25, 0.26);
-          --copper: #b9724b;
-          --gold: #c79a4c;
-          --ease-out: cubic-bezier(0.22, 0.8, 0.2, 1);
-          --ease-expo: cubic-bezier(0.19, 1, 0.22, 1);
-          --ease-wipe: cubic-bezier(0.76, 0, 0.18, 1);
-          --media-h: clamp(580px, 100vh, 860px);
-          --mx: 0;
-          --my: 0;
-          --sp: 0;
-          position: relative;
-          overflow: hidden;
-          isolation: isolate;
-          background: var(--cream);
-          color: var(--ink);
-          font-family: var(--aur-sans), system-ui, sans-serif;
-        }
-        .aur-feat a,
-        .aur-feat button {
-          -webkit-tap-highlight-color: transparent;
-        }
-
-        .aur-feat__grid {
-          display: grid;
-          grid-template-columns: minmax(0, 1.22fr) minmax(0, 0.98fr) clamp(110px, 11vw, 150px);
-          align-items: stretch;
-        }
-
-        @keyframes aurFtFade {
-          from {
-            opacity: 0;
-            transform: translate3d(0, 16px, 0);
-          }
-          to {
-            opacity: 1;
-            transform: translate3d(0, 0, 0);
-          }
-        }
-        @keyframes aurFtGrowX {
-          to {
-            transform: scaleX(1);
-          }
-        }
-
-        /* ═══════════════════════════════════════════════════════════════════
-           LEFT · HERO PRODUCT PHOTO
-           ═══════════════════════════════════════════════════════════════════ */
-        .aur-feat__media {
-          position: relative;
-          overflow: hidden;
-          height: var(--media-h);
-          background: #14100c;
-          clip-path: inset(0 0 0 100%);
-        }
-        .aur-feat.is-in .aur-feat__media {
-          animation: aurFtWipe 1.6s var(--ease-wipe) both;
-        }
-        @keyframes aurFtWipe {
-          from {
-            clip-path: inset(0 0 0 100%);
-          }
-          to {
-            clip-path: inset(0 0 0 0);
-          }
-        }
-
-        .aur-feat__par {
-          position: absolute;
-          inset: -8%;
-          transform: translate3d(calc(var(--mx) * -20px), calc(var(--my) * -12px + var(--sp) * 24px), 0);
-          transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
-          will-change: transform;
-          animation: aurFtCross 0.6s ease both;
-        }
-        @keyframes aurFtCross {
-          from {
-            opacity: 0.3;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-        .aur-feat__kb {
-          position: absolute;
-          inset: 0;
-          transform: scale(1.14);
-        }
-        .aur-feat.is-in .aur-feat__kb {
-          animation: aurFtKB 3s var(--ease-out) 0.2s both;
-        }
-        @keyframes aurFtKB {
-          from {
-            transform: scale(1.14) translate3d(1.4%, 0.8%, 0);
-          }
-          to {
-            transform: scale(1) translate3d(0, 0, 0);
-          }
-        }
-        .aur-feat__kb img,
-        .aur-feat__media .aur-feat__fallback {
-          display: block;
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          -webkit-user-drag: none;
-        }
-        .aur-feat__media .aur-feat__fallback {
-          background:
-            linear-gradient(120deg, transparent 30%, rgba(255, 226, 180, 0.12) 46%, transparent 62%),
-            radial-gradient(ellipse 70% 55% at 32% 22%, #8a6a50, transparent 72%),
-            linear-gradient(165deg, #43331f, #120e0a);
-        }
-
-        .aur-feat__shade {
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          background:
-            linear-gradient(0deg, rgba(14, 11, 8, 0.75) 0%, rgba(14, 11, 8, 0.08) 30%, rgba(14, 11, 8, 0) 48%),
-            linear-gradient(180deg, rgba(14, 11, 8, 0.6) 0%, rgba(14, 11, 8, 0) 26%);
-        }
-
-        .aur-feat__dust {
-          position: absolute;
-          inset: 0;
-          z-index: 2;
-          width: 100%;
-          height: 100%;
-          pointer-events: none;
-          opacity: 0;
-          transition: opacity 2s ease 0.5s;
-        }
-        .aur-feat.is-in .aur-feat__dust {
-          opacity: 1;
-        }
-
-        .aur-feat__brand {
-          position: absolute;
-          z-index: 3;
-          top: clamp(22px, 2.6vw, 38px);
-          left: clamp(22px, 2.6vw, 38px);
-          margin: 0;
-          font-family: var(--aur-serif), Georgia, serif;
-          font-weight: 400;
-          font-size: clamp(1.25rem, 1.7vw, 1.6rem);
-          letter-spacing: 0.02em;
-          color: #f6efe8;
-          opacity: 0;
-        }
-        .aur-feat.is-in .aur-feat__brand {
-          animation: aurFtFade 1.2s ease 0.9s both;
-        }
-
-        .aur-feat__eyebrow-block {
-          position: absolute;
-          z-index: 3;
-          top: clamp(96px, 12vw, 148px);
-          left: clamp(22px, 2.6vw, 38px);
-          display: flex;
-          gap: 12px;
-          opacity: 0;
-        }
-        .aur-feat.is-in .aur-feat__eyebrow-block {
-          animation: aurFtFade 1.2s ease 1.1s both;
-        }
-        .aur-feat__eyebrow-block i {
-          display: block;
-          width: 1px;
-          align-self: stretch;
-          background: rgba(246, 239, 232, 0.4);
-        }
-        .aur-feat__eyebrow-block p {
-          margin: 0;
-          font-size: 0.66rem;
-          font-weight: 500;
-          letter-spacing: 0.24em;
-          text-transform: uppercase;
-          line-height: 1.7;
-          color: rgba(246, 239, 232, 0.85);
-        }
-        .aur-feat__eyebrow-block p span {
-          display: block;
-        }
-
-        .aur-feat__gallery {
-          position: absolute;
-          z-index: 3;
-          left: clamp(22px, 2.6vw, 38px);
-          bottom: clamp(96px, 12vw, 146px);
-          display: flex;
-          align-items: center;
-          gap: 18px;
-          opacity: 0;
-        }
-        .aur-feat.is-in .aur-feat__gallery {
-          animation: aurFtFade 1.2s ease 1.3s both;
-        }
-        .aur-feat__gallery-count {
-          display: flex;
-          flex-direction: column;
-          line-height: 1;
-          color: #f6efe8;
-        }
-        .aur-feat__gallery-num {
-          font-family: var(--aur-serif), Georgia, serif;
-          font-size: 1.5rem;
-          font-weight: 500;
-          font-variant-numeric: tabular-nums;
-        }
-        .aur-feat__gallery-count small {
-          margin-top: 3px;
-          font-size: 0.66rem;
-          letter-spacing: 0.08em;
-          color: rgba(246, 239, 232, 0.6);
-        }
-        .aur-feat__gallery-arrows {
-          display: flex;
-          gap: 8px;
-        }
-        .aur-feat__gallery-arrows button {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 34px;
-          height: 34px;
-          padding: 0;
-          border-radius: 50%;
-          border: 1px solid rgba(246, 239, 232, 0.5);
-          background: rgba(255, 255, 255, 0.02);
-          color: #f6efe8;
-          cursor: pointer;
-          transition: background 0.35s ease, color 0.35s ease, border-color 0.35s ease, transform 0.45s var(--ease-out);
-        }
-        .aur-feat__gallery-arrows button:hover {
-          background: #f6efe8;
-          color: var(--ink);
-          border-color: #f6efe8;
-          transform: scale(1.08);
-        }
-
-        .aur-feat__tag {
-          position: absolute;
-          z-index: 3;
-          left: clamp(22px, 2.6vw, 38px);
-          bottom: clamp(30px, 3.4vw, 46px);
-          opacity: 0;
-        }
-        .aur-feat.is-in .aur-feat__tag {
-          animation: aurFtFade 1.2s ease 1.5s both;
-        }
-        .aur-feat__tag p {
-          margin: 0 0 12px;
-          font-family: var(--aur-serif), Georgia, serif;
-          font-style: italic;
-          font-size: clamp(0.92rem, 1.05vw, 1.02rem);
-          line-height: 1.4;
-          color: rgba(246, 239, 232, 0.9);
-        }
-        .aur-feat__tag p span {
-          display: block;
-        }
-        .aur-feat__tag i {
-          display: block;
-          width: 40px;
-          height: 1px;
-          background: rgba(246, 239, 232, 0.5);
-          transform: scaleX(0);
-          transform-origin: left;
-        }
-        .aur-feat.is-in .aur-feat__tag i {
-          animation: aurFtGrowX 1s var(--ease-out) 1.7s both;
-        }
-
-        /* ═══════════════════════════════════════════════════════════════════
-           CENTER · PRODUCT COPY
-           ═══════════════════════════════════════════════════════════════════ */
-        .aur-feat__content {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          padding: clamp(52px, 5.6vw, 88px) clamp(28px, 3.2vw, 52px);
-        }
-
-        .aur-feat__eyebrow {
-          margin: 0 0 clamp(12px, 1.4vw, 18px);
-          font-size: 0.7rem;
-          font-weight: 500;
-          letter-spacing: 0.36em;
-          text-transform: uppercase;
-          color: var(--copper);
-        }
-        .aur-letter {
-          display: inline-block;
-          opacity: 0;
-        }
-        .aur-feat.is-in .aur-letter {
-          animation: aurFtLetter 0.9s var(--ease-expo) both;
-        }
-        @keyframes aurFtLetter {
-          from {
-            opacity: 0;
-            transform: translate3d(0, 60%, 0);
-            filter: blur(4px);
-          }
-          to {
-            opacity: 1;
-            transform: translate3d(0, 0, 0);
-            filter: blur(0);
-          }
-        }
-
-        .aur-feat__title {
-          display: flex;
-          flex-direction: column;
-          margin: 0;
-          font-family: var(--aur-serif), Georgia, serif;
-          font-weight: 400;
-          font-size: clamp(2.2rem, 3.3vw, 3.2rem);
-          line-height: 1.06;
-          letter-spacing: -0.01em;
-          color: var(--ink);
-        }
         .aur-line {
           display: block;
           overflow: hidden;
           padding: 0.04em 0.06em 0.14em 0;
           margin-bottom: -0.1em;
-        }
-        .aur-line__in {
-          display: inline-block;
-          transform: translate3d(0, 115%, 0) rotate(3deg);
-          transform-origin: left bottom;
-        }
-        .aur-feat.is-in .aur-line__in {
-          animation: aurFtRise 1.3s var(--ease-expo) both;
-        }
-        .aur-feat__accent {
-          font-style: italic;
-          color: var(--copper);
-        }
-        @keyframes aurFtRise {
-          from {
-            transform: translate3d(0, 115%, 0) rotate(3deg);
-          }
-          to {
-            transform: translate3d(0, 0, 0) rotate(0);
-          }
-        }
-
-        .aur-feat__desc {
-          max-width: 40ch;
-          margin: clamp(18px, 2vw, 26px) 0 0;
-          font-size: clamp(0.9rem, 1vw, 0.98rem);
-          font-weight: 300;
-          line-height: 1.7;
-          color: var(--ink-soft);
-          opacity: 0;
-        }
-        .aur-feat.is-in .aur-feat__desc {
-          animation: aurFtFade 1.1s ease 0.6s both;
-        }
-
-        .aur-feat__features {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 20px clamp(20px, 2.4vw, 34px);
-          margin: clamp(24px, 2.6vw, 34px) 0 0;
-          padding: 0;
-          list-style: none;
-        }
-        .aur-feat__features li {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          opacity: 0;
-        }
-        .aur-feat.is-in .aur-feat__features li {
-          animation: aurFtFade 1s ease both;
-        }
-        .aur-feat__ficon {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 38px;
-          height: 38px;
-          flex-shrink: 0;
-          border-radius: 50%;
-          border: 1px solid var(--line);
-          color: var(--copper);
-        }
-        .aur-feat__flabel {
-          display: flex;
-          flex-direction: column;
-          font-size: 0.82rem;
-          line-height: 1.35;
-          color: var(--ink);
-        }
-        .aur-feat__flabel span {
-          display: block;
-        }
-
-        .aur-feat__price-row {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          margin: clamp(26px, 2.8vw, 38px) 0 0;
-          opacity: 0;
-        }
-        .aur-feat.is-in .aur-feat__price-row {
-          animation: aurFtFade 1.2s ease 1.25s both;
-        }
-        .aur-feat__price {
-          font-family: var(--aur-serif), Georgia, serif;
-          font-size: clamp(1.7rem, 2.2vw, 2.1rem);
-          font-weight: 500;
-          color: var(--ink);
-        }
-        .aur-feat__price-cur {
-          margin-right: 4px;
-          font-size: 0.55em;
-          font-weight: 400;
-          vertical-align: 0.2em;
-          color: var(--ink-soft);
-        }
-        .aur-feat__price-row > i {
-          display: block;
-          width: 34px;
-          height: 1px;
-          background: var(--line);
-        }
-        .aur-feat__rating {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 0.8rem;
-          color: var(--ink-soft);
-        }
-        .aur-feat__stars {
-          display: inline-flex;
-          gap: 2px;
-          color: rgba(42, 32, 25, 0.25);
-        }
-        .aur-feat__stars .is-on {
-          color: var(--gold);
-        }
-
-        .aur-feat__actions {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 16px;
-          margin-top: clamp(26px, 2.8vw, 36px);
         }
         .aur-magnet {
           display: inline-block;
@@ -1168,194 +759,6 @@ export default function FeaturedProductSection({
         }
         .aur-magnet.is-magnet {
           transition-duration: 0.22s;
-        }
-        .aur-feat__actions .aur-magnet {
-          opacity: 0;
-        }
-        .aur-feat.is-in .aur-feat__actions .aur-magnet {
-          animation: aurFtFade 1.2s ease 1.45s both;
-        }
-        .aur-feat__cta {
-          position: relative;
-          display: inline-flex;
-          align-items: center;
-          gap: 14px;
-          height: 52px;
-          padding: 0 30px;
-          border-radius: 999px;
-          background: var(--ink);
-          color: var(--cream);
-          font-size: 0.9rem;
-          font-weight: 500;
-          text-decoration: none;
-          overflow: hidden;
-          box-shadow: 0 16px 34px -16px rgba(42, 32, 25, 0.55);
-          transition: transform 0.5s var(--ease-out), box-shadow 0.5s ease, background 0.4s ease;
-        }
-        .aur-feat__cta:hover {
-          background: #3c2d20;
-          transform: translateY(-3px);
-          box-shadow: 0 22px 44px -16px rgba(42, 32, 25, 0.65);
-        }
-        .aur-feat__cta:active {
-          transform: translateY(-1px) scale(0.98);
-        }
-        .aur-feat__cta-arrow {
-          display: inline-flex;
-          transition: transform 0.45s var(--ease-out);
-        }
-        .aur-feat__cta:hover .aur-feat__cta-arrow {
-          transform: translateX(6px);
-        }
-
-        .aur-feat__link {
-          position: relative;
-          font-size: 0.86rem;
-          color: var(--ink);
-          text-decoration: none;
-          padding-bottom: 3px;
-          background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat;
-          opacity: 0;
-        }
-        .aur-feat.is-in .aur-feat__link {
-          animation: aurFtFade 1.2s ease 1.6s both;
-        }
-        .aur-feat__link:hover {
-          color: var(--copper);
-        }
-
-        /* ═══════════════════════════════════════════════════════════════════
-           RIGHT · PAGE COUNT + THUMBNAIL RAIL
-           ═══════════════════════════════════════════════════════════════════ */
-        .aur-feat__side {
-          display: flex;
-          flex-direction: column;
-          padding: clamp(22px, 2.6vw, 38px) clamp(18px, 2vw, 26px) clamp(22px, 2.6vw, 38px) 0;
-        }
-
-        .aur-feat__count {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          margin-bottom: clamp(20px, 2.4vw, 32px);
-          color: var(--ink);
-          font-size: 0.7rem;
-          letter-spacing: 0.06em;
-          opacity: 0;
-        }
-        .aur-feat.is-in .aur-feat__count {
-          animation: aurFtFade 1.1s ease 0.55s both;
-        }
-        .aur-feat__count-num {
-          font-weight: 500;
-        }
-        .aur-feat__count em {
-          font-style: normal;
-          opacity: 0.5;
-        }
-        .aur-feat__count > span:nth-child(3) {
-          opacity: 0.55;
-        }
-        .aur-feat__count i {
-          flex: 1 1 auto;
-          height: 1px;
-          background: var(--line);
-          transform: scaleX(0);
-          transform-origin: left;
-        }
-        .aur-feat.is-in .aur-feat__count i {
-          animation: aurFtGrowX 1.3s var(--ease-out) 0.7s both;
-        }
-        .aur-feat__count svg {
-          flex-shrink: 0;
-          opacity: 0.7;
-        }
-
-        .aur-feat__thumbs {
-          display: flex;
-          flex-direction: column;
-          gap: clamp(12px, 1.4vw, 18px);
-        }
-        .aur-feat__thumb {
-          position: relative;
-          display: block;
-          height: clamp(96px, 10vw, 130px);
-          padding: 0;
-          overflow: hidden;
-          border: 1px solid transparent;
-          background: #22190f;
-          cursor: pointer;
-          clip-path: inset(0 0 0 100%);
-          transition: border-color 0.4s ease;
-        }
-        .aur-feat.is-in .aur-feat__thumb {
-          animation: aurFtWipe 1.3s var(--ease-wipe) calc(var(--i) * 180ms + 0.5s) both;
-        }
-        .aur-feat__thumb.is-active {
-          border-color: var(--copper);
-        }
-        .aur-feat__thumb-par {
-          position: absolute;
-          inset: -8%;
-        }
-        .aur-feat__thumb-kb {
-          position: absolute;
-          inset: 0;
-          transform: scale(1.2);
-        }
-        .aur-feat.is-in .aur-feat__thumb-kb {
-          animation: aurFtKB 2.2s var(--ease-out) calc(var(--i) * 180ms + 0.65s) both;
-        }
-        .aur-feat__thumb-kb img,
-        .aur-feat__thumb .aur-feat__fallback {
-          display: block;
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          transform: scale(1);
-          transition: transform 1.1s var(--ease-out), filter 0.4s ease;
-          -webkit-user-drag: none;
-        }
-        .aur-feat__thumb .aur-feat__fallback {
-          background:
-            linear-gradient(120deg, transparent 32%, rgba(255, 226, 180, 0.14) 46%, transparent 60%),
-            radial-gradient(ellipse 80% 55% at 30% 22%, var(--t1, #b89b76), transparent 72%),
-            linear-gradient(165deg, var(--t2, #241c15), #14100c);
-        }
-        .aur-feat__thumb:hover .aur-feat__thumb-kb img,
-        .aur-feat__thumb:hover .aur-feat__fallback {
-          transform: scale(1.08);
-        }
-        .aur-feat__thumb:not(.is-active) .aur-feat__thumb-kb img,
-        .aur-feat__thumb:not(.is-active) .aur-feat__fallback {
-          filter: brightness(0.82);
-        }
-
-        .aur-feat__next {
-          display: inline-flex;
-          align-items: center;
-          gap: 10px;
-          margin-top: clamp(18px, 2vw, 26px);
-          font-size: 0.74rem;
-          letter-spacing: 0.04em;
-          color: var(--ink);
-          text-decoration: none;
-          opacity: 0;
-        }
-        .aur-feat.is-in .aur-feat__next {
-          animation: aurFtFade 1.2s ease 1.3s both;
-        }
-        .aur-feat__next i {
-          display: block;
-          width: 18px;
-          height: 1px;
-          background: var(--line);
-        }
-        .aur-feat__next svg {
-          transition: transform 0.45s var(--ease-out);
-        }
-        .aur-feat__next:hover svg {
-          transform: translateX(4px);
         }
 
         /* ═══════════════════════════════════════════════════════════════════
@@ -1370,10 +773,6 @@ export default function FeaturedProductSection({
           pointer-events: none;
           opacity: 0;
           transition: opacity 0.35s ease;
-        }
-        .aur-cursor.is-visible,
-        .aur-cursor-dot.is-visible {
-          opacity: 1;
         }
         .aur-cursor::before {
           content: '';
@@ -1415,9 +814,6 @@ export default function FeaturedProductSection({
           opacity: 0;
           transition: opacity 0.3s ease;
         }
-        .aur-cursor.has-label .aur-cursor__label {
-          opacity: 1;
-        }
         .aur-cursor-dot::before {
           content: '';
           position: absolute;
@@ -1430,91 +826,10 @@ export default function FeaturedProductSection({
           background: var(--ink);
           transition: transform 0.3s ease;
         }
-        .aur-cursor-dot.is-grow::before {
-          transform: scale(0);
-        }
-
-        /* ═══════════════════════════════════════════════════════════════════
-           FOCUS + PAUSE
-           ═══════════════════════════════════════════════════════════════════ */
-        .aur-feat a:focus-visible,
-        .aur-feat button:focus-visible {
-          outline: 2px solid var(--copper);
-          outline-offset: 4px;
-        }
-        .aur-feat.is-offscreen .aur-feat__dust {
-          animation-play-state: paused;
-        }
-
-        /* ═══════════════════════════════════════════════════════════════════
-           RESPONSIVE
-           ═══════════════════════════════════════════════════════════════════ */
-        @media (max-width: 1180px) {
-          .aur-feat__grid {
-            grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) clamp(100px, 14vw, 130px);
-          }
-        }
-
-        @media (max-width: 980px) {
-          .aur-feat {
-            --media-h: 560px;
-          }
-          .aur-feat__grid {
-            grid-template-columns: 1fr;
-          }
-          .aur-feat__side {
-            padding: 0 clamp(24px, 6vw, 56px) clamp(56px, 7vw, 84px);
-          }
-          .aur-feat__thumbs {
-            flex-direction: row;
-          }
-          .aur-feat__thumb {
-            flex: 1;
-            height: clamp(120px, 22vw, 180px);
-          }
-          .aur-feat__count {
-            margin-bottom: clamp(16px, 3vw, 24px);
-          }
-        }
-
-        @media (max-width: 620px) {
-          .aur-feat {
-            --media-h: 480px;
-          }
-          .aur-feat__content {
-            padding: 48px 24px;
-          }
-          .aur-feat__desc {
-            max-width: none;
-          }
-          .aur-feat__features {
-            grid-template-columns: 1fr 1fr;
-          }
-          .aur-feat__eyebrow-block,
-          .aur-feat__gallery {
-            display: none;
-          }
-        }
 
         @media (pointer: coarse) {
           .aur-cursor,
           .aur-cursor-dot {
-            display: none;
-          }
-        }
-
-        /* ═══════════════════════════════════════════════════════════════════
-           REDUCED MOTION
-           ═══════════════════════════════════════════════════════════════════ */
-        @media (prefers-reduced-motion: reduce) {
-          .aur-feat *,
-          .aur-feat *::before,
-          .aur-feat *::after {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.01ms !important;
-          }
-          .aur-feat__dust {
             display: none;
           }
         }

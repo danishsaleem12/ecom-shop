@@ -1,0 +1,422 @@
+/* Footer.css — moved out of Footer.js (it used to be a <style jsx global> block there). Plain CSS, same rules. */
+/* ═══════════════════════════════════════════════════════════════════
+   ROOT
+   ═══════════════════════════════════════════════════════════════════ */
+.aur-ft {
+  --sand-1: #ddd0b8;
+  --sand-2: #d0c1a3;
+  --ink: #241c14;
+  --ink-soft: rgba(36, 28, 20, 0.68);
+  --ink-faint: rgba(36, 28, 20, 0.66);
+  --line: rgba(36, 28, 20, 0.22);
+  --copper: #a56a41;
+  --gutter: clamp(22px, 4.6vw, 84px);
+  --ease-out: cubic-bezier(0.22, 0.8, 0.2, 1);
+  --ease-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  color: var(--ink);
+  font-family: var(--aur-sans), system-ui, sans-serif;
+  background: linear-gradient(165deg, var(--sand-1) 0%, var(--sand-2) 100%);
+  padding: clamp(44px, 5vw, 72px) var(--gutter) 0;
+}
+.aur-ft a,
+.aur-ft button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.aur-ft__grain {
+  position: absolute;
+  inset: -10%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.12;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation: aurFtGrain 1.2s steps(6) infinite;
+}
+@keyframes aurFtGrain {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  20% {
+    transform: translate3d(-3%, 2%, 0);
+  }
+  40% {
+    transform: translate3d(2%, -3%, 0);
+  }
+  60% {
+    transform: translate3d(-2%, -1%, 0);
+  }
+  80% {
+    transform: translate3d(3%, 3%, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes aurFtFade {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes aurFtGrowX {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   TOP GRID
+   ═══════════════════════════════════════════════════════════════════ */
+.aur-ft__top {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr 1.3fr;
+  gap: clamp(28px, 3.4vw, 48px);
+  padding-bottom: clamp(40px, 4.4vw, 60px);
+}
+
+/* ── brand ─────────────────────────────────────────────────────── */
+.aur-ft__brand {
+  opacity: 0;
+}
+.aur-ft.is-in .aur-ft__brand {
+  animation: aurFtFade 1s ease 0.05s both;
+}
+.aur-ft__logo {
+  display: inline-block;
+  font-family: var(--aur-serif), Georgia, serif;
+  font-size: clamp(1.7rem, 2.2vw, 2.1rem);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+}
+.aur-ft__tagline {
+  margin: 16px 0 0;
+  max-width: 22ch;
+  font-family: var(--aur-serif), Georgia, serif;
+  font-style: italic;
+  font-size: 0.98rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+.aur-ft__tagline span {
+  display: block;
+}
+.aur-ft__rule {
+  display: block;
+  width: 30px;
+  height: 1px;
+  margin: 20px 0;
+  background: var(--line);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.aur-ft.is-in .aur-ft__rule {
+  animation: aurFtGrowX 1s var(--ease-out) 0.4s both;
+}
+.aur-ft__socials {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.aur-ft__socials a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  transition: background 0.35s ease, color 0.35s ease, border-color 0.35s ease, transform 0.45s var(--ease-out);
+}
+.aur-ft__socials a:hover {
+  background: var(--ink);
+  color: var(--sand-1);
+  border-color: var(--ink);
+  transform: translateY(-2px);
+}
+
+/* ── link columns ──────────────────────────────────────────────── */
+.aur-ft__col {
+  opacity: 0;
+}
+.aur-ft.is-in .aur-ft__col {
+  animation: aurFtFade 1s ease calc(var(--i) * 90ms + 0.15s) both;
+}
+.aur-ft__heading {
+  margin: 0 0 18px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.aur-ft__col ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.aur-ft__col a {
+  position: relative;
+  display: inline-block;
+  font-size: 0.86rem;
+  color: var(--ink-soft);
+  text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  transition: background-size 0.45s var(--ease-out), color 0.3s ease;
+}
+.aur-ft__col a:hover {
+  color: var(--ink);
+  background-size: 100% 1px;
+}
+
+/* ── newsletter ────────────────────────────────────────────────── */
+.aur-ft__news {
+  opacity: 0;
+}
+.aur-ft.is-in .aur-ft__news {
+  animation: aurFtFade 1s ease calc(var(--i) * 90ms + 0.15s) both;
+}
+.aur-ft__news-desc {
+  margin: 0 0 20px;
+  max-width: 26ch;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+.aur-ft__field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 260px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid var(--line);
+  transition: border-color 0.35s ease;
+}
+.aur-ft__field:focus-within {
+  border-color: var(--ink);
+}
+.aur-ft__field input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.86rem;
+  padding: 3px 0;
+}
+.aur-ft__field input::placeholder {
+  color: var(--ink-faint);
+}
+.aur-ft__field input:focus {
+  outline: none;
+}
+.aur-ft-magnet {
+  display: inline-flex;
+  transition: transform 0.7s var(--ease-out);
+  will-change: transform;
+}
+.aur-ft-magnet.is-magnet {
+  transition-duration: 0.22s;
+}
+.aur-ft__field button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.35s ease, color 0.35s ease, transform 0.4s var(--ease-out);
+}
+.aur-ft__field button:hover {
+  background: var(--ink);
+  color: var(--sand-1);
+}
+.aur-ft__done {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--ink);
+}
+.aur-ft__error {
+  margin: 10px 0 0;
+  font-size: 0.78rem;
+  color: #9a4a36;
+}
+.aur-ft__fine {
+  margin: 12px 0 0;
+  max-width: 30ch;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: var(--ink-faint);
+}
+.aur-ft__fine a {
+  color: var(--ink-soft);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.aur-ft__field button:disabled {
+  opacity: 0.5;
+  cursor: progress;
+}
+.aur-ft__done svg {
+  color: #4c6b45;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   BOTTOM BAR
+   ═══════════════════════════════════════════════════════════════════ */
+.aur-ft__bottom {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: clamp(18px, 2vw, 24px) 0;
+  border-top: 1px solid var(--line);
+  opacity: 0;
+}
+.aur-ft.is-in .aur-ft__bottom {
+  animation: aurFtFade 1s ease 0.5s both;
+}
+.aur-ft__admin {
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  text-decoration: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 16px;
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+.aur-ft__admin:hover,
+.aur-ft__admin:focus-visible {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+.aur-ft__bottom p {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+}
+.aur-ft__legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 22px;
+}
+.aur-ft__legal a {
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+.aur-ft__legal a:hover,
+.aur-ft__legal a:focus-visible {
+  color: var(--ink);
+}
+.aur-ft__top-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+.aur-ft__top-btn:hover {
+  color: var(--ink);
+}
+.aur-ft__top-btn svg {
+  transition: transform 0.4s var(--ease-out);
+}
+.aur-ft__top-btn:hover svg {
+  transform: translateY(-2px);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FOCUS
+   ═══════════════════════════════════════════════════════════════════ */
+.aur-ft a:focus-visible,
+.aur-ft button:focus-visible,
+.aur-ft input:focus-visible {
+  outline: 2px solid var(--copper);
+  outline-offset: 3px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════════════ */
+@media (max-width: 1080px) {
+  .aur-ft__top {
+    grid-template-columns: 1fr 1fr 1fr;
+    row-gap: 40px;
+  }
+  .aur-ft__brand {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .aur-ft__top {
+    grid-template-columns: 1fr 1fr;
+  }
+  .aur-ft__news {
+    grid-column: 1 / -1;
+  }
+  .aur-ft__bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 420px) {
+  .aur-ft__top {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   REDUCED MOTION
+   ═══════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .aur-ft *,
+  .aur-ft *::before,
+  .aur-ft *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .aur-ft__grain {
+    display: none;
+  }
+}
